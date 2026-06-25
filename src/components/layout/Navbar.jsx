@@ -2,9 +2,9 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import Logo from "./Logo";
-import { Menu, X, User, LogIn } from "lucide-react";
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { motion, AnimatePresence } from "framer-motion";
+import { Menu, X, User, LogIn, BookOpen } from "lucide-react";
 
 const NAV_LINKS = [
   { label: "Home", href: "/" },
@@ -13,11 +13,33 @@ const NAV_LINKS = [
   { label: "Contact", href: "/contact" },
 ];
 
+function Logo() {
+  return (
+    <Link href="/" className="flex items-center gap-2 group">
+      <motion.div
+        whileHover={{ scale: 1.1 }}
+        whileTap={{ scale: 0.95 }}
+        className="w-9 h-9 rounded-lg flex items-center justify-center"
+        style={{ backgroundColor: "var(--primary)" }}
+      >
+        <BookOpen size={20} color="white" strokeWidth={2.5} />
+      </motion.div>
+      <span
+        className="text-xl font-bold tracking-tight"
+        style={{ color: "var(--brand)" }}
+      >
+        Fable
+      </span>
+    </Link>
+  );
+}
+
 export default function Navbar() {
   const pathname = usePathname();
   const [menuOpen, setMenuOpen] = useState(false);
+  const [scrolled, setScrolled] = useState(false);
 
-  // temporary — auth later
+  // temporary
   const user = null;
 
   const isActive = (href) => {
@@ -25,12 +47,34 @@ export default function Navbar() {
     return pathname.startsWith(href);
   };
 
+  // Scroll effect
+  useEffect(() => {
+    const handleScroll = () => {
+      setScrolled(window.scrollY > 10);
+    };
+    window.addEventListener("scroll", handleScroll);
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, []);
+
+  // Close menu on route change
+  useEffect(() => {
+    setMenuOpen(false);
+  }, [pathname]);
+
   return (
-    <header
+    <motion.header
+      initial={{ y: -80, opacity: 0 }}
+      animate={{ y: 0, opacity: 1 }}
+      transition={{ duration: 0.4, ease: "easeOut" }}
       className="sticky top-0 z-50 w-full border-b"
       style={{
-        backgroundColor: "var(--background)",
+        backgroundColor: scrolled
+          ? "rgba(255, 249, 245, 0.95)"
+          : "var(--background)",
         borderColor: "var(--border)",
+        backdropFilter: scrolled ? "blur(10px)" : "none",
+        boxShadow: scrolled ? "0 2px 20px var(--shadow)" : "none",
+        transition: "all 0.3s ease",
       }}
     >
       <div className="container">
@@ -39,29 +83,36 @@ export default function Navbar() {
           {/* Logo */}
           <Logo />
 
-          {/* Desktop Nav Links */}
+          {/* Desktop Nav */}
           <nav className="hidden md:flex items-center gap-1">
             {NAV_LINKS.map((link) => (
               <Link
                 key={link.href}
                 href={link.href}
-                className="px-4 py-2 rounded-lg text-sm font-medium transition-all"
+                className="relative px-4 py-2 rounded-lg text-sm transition-all"
                 style={{
-                  color: isActive(link.href)
-                    ? "var(--primary)"
-                    : "var(--brand)",
-                  backgroundColor: isActive(link.href)
-                    ? "var(--card)"
-                    : "transparent",
+                  color: isActive(link.href) ? "var(--primary)" : "var(--brand)",
                   fontWeight: isActive(link.href) ? "600" : "500",
+                  backgroundColor: isActive(link.href) ? "var(--card)" : "transparent",
                 }}
               >
                 {link.label}
+                {isActive(link.href) && (
+                  <motion.div
+                    layoutId="activeIndicator"
+                    className="absolute bottom-0 left-1/2 w-1 h-1 rounded-full"
+                    style={{
+                      backgroundColor: "var(--primary)",
+                      transform: "translateX(-50%)",
+                      bottom: "4px",
+                    }}
+                  />
+                )}
               </Link>
             ))}
           </nav>
 
-          {/* Desktop Auth Buttons */}
+          {/* Desktop Auth */}
           <div className="hidden md:flex items-center gap-3">
             {user ? (
               <Link
@@ -86,88 +137,10 @@ export default function Navbar() {
                   <LogIn size={16} />
                   Login
                 </Link>
-                <Link
-                  href="/register"
-                  className="flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-semibold transition-all hover:opacity-90"
-                  style={{
-                    backgroundColor: "var(--primary)",
-                    color: "var(--white)",
-                  }}
-                >
-                  Get Started
-                </Link>
-              </>
-            )}
-          </div>
-
-          {/* Mobile Hamburger */}
-          <button
-            className="md:hidden p-2 rounded-lg"
-            style={{ color: "var(--brand)" }}
-            onClick={() => setMenuOpen(!menuOpen)}
-            aria-label="Toggle menu"
-          >
-            {menuOpen ? <X size={22} /> : <Menu size={22} />}
-          </button>
-
-        </div>
-
-        {/* Mobile Menu */}
-        {menuOpen && (
-          <div
-            className="md:hidden border-t py-4 flex flex-col gap-1"
-            style={{ borderColor: "var(--border)" }}
-          >
-            {NAV_LINKS.map((link) => (
-              <Link
-                key={link.href}
-                href={link.href}
-                onClick={() => setMenuOpen(false)}
-                className="px-4 py-3 rounded-lg text-sm font-medium"
-                style={{
-                  color: isActive(link.href) ? "var(--primary)" : "var(--brand)",
-                  backgroundColor: isActive(link.href)
-                    ? "var(--card)"
-                    : "transparent",
-                  fontWeight: isActive(link.href) ? "600" : "500",
-                }}
-              >
-                {link.label}
-              </Link>
-            ))}
-
-            <div
-              className="flex flex-col gap-2 mt-3 pt-3 border-t"
-              style={{ borderColor: "var(--border)" }}
-            >
-              {user ? (
-                <Link
-                  href="/dashboard/user"
-                  onClick={() => setMenuOpen(false)}
-                  className="flex items-center gap-2 px-4 py-3 rounded-lg text-sm font-medium"
-                  style={{
-                    backgroundColor: "var(--card)",
-                    color: "var(--brand)",
-                  }}
-                >
-                  <User size={16} />
-                  Dashboard
-                </Link>
-              ) : (
-                <>
-                  <Link
-                    href="/login"
-                    onClick={() => setMenuOpen(false)}
-                    className="flex items-center gap-2 px-4 py-3 rounded-lg text-sm font-medium"
-                    style={{ color: "var(--brand)" }}
-                  >
-                    <LogIn size={16} />
-                    Login
-                  </Link>
+                <motion.div whileHover={{ scale: 1.03 }} whileTap={{ scale: 0.97 }}>
                   <Link
                     href="/register"
-                    onClick={() => setMenuOpen(false)}
-                    className="flex items-center gap-2 px-4 py-3 rounded-lg text-sm font-semibold text-center justify-center"
+                    className="flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-semibold"
                     style={{
                       backgroundColor: "var(--primary)",
                       color: "var(--white)",
@@ -175,12 +148,124 @@ export default function Navbar() {
                   >
                     Get Started
                   </Link>
-                </>
-              )}
-            </div>
+                </motion.div>
+              </>
+            )}
           </div>
-        )}
+
+          {/* Hamburger */}
+          <motion.button
+            whileTap={{ scale: 0.9 }}
+            className="md:hidden p-2 rounded-lg"
+            style={{ color: "var(--brand)" }}
+            onClick={() => setMenuOpen(!menuOpen)}
+            aria-label="Toggle menu"
+          >
+            <AnimatePresence mode="wait">
+              {menuOpen ? (
+                <motion.div
+                  key="close"
+                  initial={{ rotate: -90, opacity: 0 }}
+                  animate={{ rotate: 0, opacity: 1 }}
+                  exit={{ rotate: 90, opacity: 0 }}
+                  transition={{ duration: 0.2 }}
+                >
+                  <X size={22} />
+                </motion.div>
+              ) : (
+                <motion.div
+                  key="open"
+                  initial={{ rotate: 90, opacity: 0 }}
+                  animate={{ rotate: 0, opacity: 1 }}
+                  exit={{ rotate: -90, opacity: 0 }}
+                  transition={{ duration: 0.2 }}
+                >
+                  <Menu size={22} />
+                </motion.div>
+              )}
+            </AnimatePresence>
+          </motion.button>
+
+        </div>
+
+        {/* Mobile Menu */}
+        <AnimatePresence>
+          {menuOpen && (
+            <motion.div
+              initial={{ opacity: 0, height: 0 }}
+              animate={{ opacity: 1, height: "auto" }}
+              exit={{ opacity: 0, height: 0 }}
+              transition={{ duration: 0.3, ease: "easeInOut" }}
+              className="md:hidden overflow-hidden border-t"
+              style={{ borderColor: "var(--border)" }}
+            >
+              <div className="py-4 flex flex-col gap-1">
+                {NAV_LINKS.map((link, index) => (
+                  <motion.div
+                    key={link.href}
+                    initial={{ opacity: 0, x: -20 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    transition={{ delay: index * 0.05 }}
+                  >
+                    <Link
+                      href={link.href}
+                      className="block px-4 py-3 rounded-lg text-sm"
+                      style={{
+                        color: isActive(link.href) ? "var(--primary)" : "var(--brand)",
+                        backgroundColor: isActive(link.href) ? "var(--card)" : "transparent",
+                        fontWeight: isActive(link.href) ? "600" : "500",
+                      }}
+                    >
+                      {link.label}
+                    </Link>
+                  </motion.div>
+                ))}
+
+                <div
+                  className="flex flex-col gap-2 mt-3 pt-3 border-t"
+                  style={{ borderColor: "var(--border)" }}
+                >
+                  {user ? (
+                    <Link
+                      href="/dashboard/user"
+                      className="flex items-center gap-2 px-4 py-3 rounded-lg text-sm font-medium"
+                      style={{
+                        backgroundColor: "var(--card)",
+                        color: "var(--brand)",
+                      }}
+                    >
+                      <User size={16} />
+                      Dashboard
+                    </Link>
+                  ) : (
+                    <>
+                      <Link
+                        href="/login"
+                        className="flex items-center gap-2 px-4 py-3 rounded-lg text-sm font-medium"
+                        style={{ color: "var(--brand)" }}
+                      >
+                        <LogIn size={16} />
+                        Login
+                      </Link>
+                      <Link
+                        href="/register"
+                        className="flex items-center justify-center gap-2 px-4 py-3 rounded-lg text-sm font-semibold"
+                        style={{
+                          backgroundColor: "var(--primary)",
+                          color: "var(--white)",
+                        }}
+                      >
+                        Get Started
+                      </Link>
+                    </>
+                  )}
+                </div>
+              </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
+
       </div>
-    </header>
+    </motion.header>
   );
 }
