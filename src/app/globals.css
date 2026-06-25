@@ -1,7 +1,5 @@
-@import "tailwindcss";
-
 @import url("https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap");
-
+@import "tailwindcss";
 
 :root {
   --background: #fff9f5;
@@ -17,7 +15,6 @@
   --shadow: rgba(249, 115, 22, 0.15);
 }
 
-
 *,
 *::before,
 *::after {
@@ -26,18 +23,23 @@
   box-sizing: border-box;
 }
 
-
 html {
   scroll-behavior: smooth;
   font-size: 16px;
 }
 
 body {
+  min-height: 100vh;
   background-color: var(--background);
   color: var(--brand);
   font-family: "Inter", sans-serif;
   line-height: 1.6;
   -webkit-font-smoothing: antialiased;
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
 }
 
 img {
@@ -48,7 +50,6 @@ img {
 button {
   cursor: pointer;
 }
-
 
 ::-webkit-scrollbar {
   width: 6px;
@@ -64,12 +65,10 @@ button {
   background: var(--primary-hover);
 }
 
-
 ::selection {
   background-color: var(--secondary);
   color: var(--brand);
 }
-
 
 .container {
   width: 100%;
@@ -82,40 +81,18 @@ button {
   padding: 5rem 0;
 }
 
-.card-bg {
-  background-color: var(--card);
-  border: 1px solid var(--border);
-  border-radius: 1rem;
-}
-
-.text-primary {
-  color: var(--primary);
-}
-
-.text-brand {
-  color: var(--brand);
-}
-
-.text-muted {
-  color: var(--muted);
-}
-
-.bg-primary {
-  background-color: var(--primary);
-}
-
-.bg-card {
-  background-color: var(--card);
-}
-
-
 a,
 button {
   transition: all 0.2s ease;
 }
 
-
 :focus-visible {
   outline: 2px solid var(--primary);
   outline-offset: 2px;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
 }
