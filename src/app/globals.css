@@ -1,0 +1,121 @@
+@import "tailwindcss";
+
+@import url("https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap");
+
+
+:root {
+  --background: #fff9f5;
+  --card: #fff1e8;
+  --primary: #f97316;
+  --primary-hover: #ea6c0a;
+  --secondary: #fed7aa;
+  --accent: #a855f7;
+  --brand: #312e81;
+  --muted: #6b7280;
+  --white: #ffffff;
+  --border: #fde8d5;
+  --shadow: rgba(249, 115, 22, 0.15);
+}
+
+
+*,
+*::before,
+*::after {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+
+html {
+  scroll-behavior: smooth;
+  font-size: 16px;
+}
+
+body {
+  background-color: var(--background);
+  color: var(--brand);
+  font-family: "Inter", sans-serif;
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+}
+
+img {
+  max-width: 100%;
+  display: block;
+}
+
+button {
+  cursor: pointer;
+}
+
+
+::-webkit-scrollbar {
+  width: 6px;
+}
+::-webkit-scrollbar-track {
+  background: var(--background);
+}
+::-webkit-scrollbar-thumb {
+  background: var(--primary);
+  border-radius: 10px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: var(--primary-hover);
+}
+
+
+::selection {
+  background-color: var(--secondary);
+  color: var(--brand);
+}
+
+
+.container {
+  width: 100%;
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: 0 1.5rem;
+}
+
+.section-padding {
+  padding: 5rem 0;
+}
+
+.card-bg {
+  background-color: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 1rem;
+}
+
+.text-primary {
+  color: var(--primary);
+}
+
+.text-brand {
+  color: var(--brand);
+}
+
+.text-muted {
+  color: var(--muted);
+}
+
+.bg-primary {
+  background-color: var(--primary);
+}
+
+.bg-card {
+  background-color: var(--card);
+}
+
+
+a,
+button {
+  transition: all 0.2s ease;
+}
+
+
+:focus-visible {
+  outline: 2px solid var(--primary);
+  outline-offset: 2px;
+}
