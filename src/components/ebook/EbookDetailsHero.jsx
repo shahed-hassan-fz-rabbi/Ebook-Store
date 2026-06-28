@@ -1,0 +1,145 @@
+"use client";
+
+import Image from "next/image";
+import { motion } from "framer-motion";
+import {
+  Star,
+  UserRound,
+  BookOpen,
+  ShoppingBag,
+  Bookmark,
+} from "lucide-react";
+
+export default function EbookDetailsHero({ ebook }) {
+  return (
+    <section className="section-padding">
+
+      <div className="container">
+
+        <div className="grid lg:grid-cols-12 gap-14 items-start">
+
+          {/* Left */}
+
+          <motion.div
+            initial={{ opacity: 0, x: -40 }}
+            animate={{ opacity: 1, x: 0 }}
+            className="lg:col-span-4"
+          >
+            <div
+              className="overflow-hidden rounded-3xl"
+              style={{
+                boxShadow: "0 20px 50px rgba(0,0,0,.08)",
+              }}
+            >
+              <Image
+                src={ebook.cover}
+                alt={ebook.title}
+                width={500}
+                height={700}
+                className="w-full h-auto object-cover"
+              />
+            </div>
+          </motion.div>
+
+          {/* Right */}
+
+          <motion.div
+            initial={{ opacity: 0, x: 40 }}
+            animate={{ opacity: 1, x: 0 }}
+            className="lg:col-span-8"
+          >
+
+            <span
+              className="px-4 py-2 rounded-full text-sm font-semibold"
+              style={{
+                background: "var(--card)",
+                color: "var(--primary)",
+              }}
+            >
+              {ebook.genre}
+            </span>
+
+            <h1
+              className="text-5xl font-bold mt-6"
+              style={{
+                color: "var(--brand)",
+              }}
+            >
+              {ebook.title}
+            </h1>
+
+            <div className="flex flex-wrap gap-8 mt-8">
+
+              <div className="flex items-center gap-2">
+                <UserRound size={18} />
+                {ebook.writer}
+              </div>
+
+              <div className="flex items-center gap-2">
+                <Star
+                  size={18}
+                  fill="#facc15"
+                  color="#facc15"
+                />
+                {ebook.rating}
+              </div>
+
+              <div className="flex items-center gap-2">
+                <BookOpen size={18} />
+                {ebook.sold} Sold
+              </div>
+
+            </div>
+
+            <p
+              className="mt-10 text-lg leading-8"
+              style={{
+                color: "var(--muted)",
+              }}
+            >
+              {ebook.description}
+            </p>
+
+            <div className="flex flex-wrap items-center gap-5 mt-10">
+
+              <h2
+                className="text-5xl font-bold"
+                style={{
+                  color: "var(--primary)",
+                }}
+              >
+                ${ebook.price}
+              </h2>
+
+              <button
+                className="px-8 py-4 rounded-xl font-semibold flex items-center gap-2"
+                style={{
+                  background: "var(--primary)",
+                  color: "white",
+                }}
+              >
+                <ShoppingBag size={20} />
+                Buy Now
+              </button>
+
+              <button
+                className="px-8 py-4 rounded-xl border flex items-center gap-2"
+                style={{
+                  borderColor: "var(--border)",
+                }}
+              >
+                <Bookmark size={18} />
+                Bookmark
+              </button>
+
+            </div>
+
+          </motion.div>
+
+        </div>
+
+      </div>
+
+    </section>
+  );
+}

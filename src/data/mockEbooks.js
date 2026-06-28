@@ -8,6 +8,8 @@ const mockEbooks = [
     rating: 4.9,
     sold: 258,
     price: 14,
+    description:
+  "An engaging ebook that helps readers improve their knowledge through practical examples and real-world insights.",
   },
   {
     _id: "2",
@@ -18,6 +20,8 @@ const mockEbooks = [
     rating: 4.8,
     sold: 189,
     price: 17,
+    description:
+  "An engaging ebook that helps readers improve their knowledge through practical examples and real-world insights.",
   },
   {
     _id: "3",
@@ -28,6 +32,8 @@ const mockEbooks = [
     rating: 4.9,
     sold: 320,
     price: 20,
+    description:
+  "An engaging ebook that helps readers improve their knowledge through practical examples and real-world insights.",
   },
 ];
 
