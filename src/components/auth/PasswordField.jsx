@@ -1,90 +1,41 @@
 "use client";
 
-import { useState } from "react";
+import { forwardRef, useState } from "react";
 import { Eye, EyeOff } from "lucide-react";
 
-export default function PasswordField({
-  label,
-  icon,
-  className = "",
-  ...props
-}) {
-
+const PasswordField = forwardRef(function PasswordField(
+  { label, placeholder, ...props },
+  ref
+) {
   const [show, setShow] = useState(false);
 
   return (
-    <div className="space-y-2">
-
-      <label
-        className="block text-sm font-semibold"
-        style={{ color: "var(--brand)" }}
-      >
-        {label}
-      </label>
-
+    <div className="flex flex-col gap-1.5">
+      {label && (
+        <label className="text-sm font-medium" style={{ color: "var(--brand)" }}>
+          {label}
+        </label>
+      )}
       <div className="relative">
-
-        <div
-          className="
-          absolute
-          left-4
-          top-1/2
-          -translate-y-1/2
-          flex
-          items-center
-          justify-center
-          pointer-events-none
-          "
-          style={{ color: "var(--muted)" }}
-        >
-          {icon}
-        </div>
-
         <input
+          ref={ref}
           type={show ? "text" : "password"}
+          placeholder={placeholder}
+          className="w-full rounded-xl px-4 py-3.5 pr-12 outline-none text-sm border border-gray-200 focus:border-orange-500 focus:ring-4 focus:ring-orange-100 transition"
+          style={{ color: "var(--brand)", background: "var(--background)" }}
           {...props}
-          className={`
-            w-full
-            h-14
-            rounded-xl
-            border
-            pl-12
-            pr-12
-            bg-white
-            text-[15px]
-            outline-none
-            transition-all
-            duration-200
-            focus:ring-4
-            ${className}
-          `}
-          style={{
-            borderColor: "#E8E8E8",
-          }}
         />
-
         <button
           type="button"
           onClick={() => setShow(!show)}
-          className="
-          absolute
-          right-4
-          top-1/2
-          -translate-y-1/2
-          text-gray-500
-          hover:text-orange-500
-          transition
-          "
+          className="absolute right-4 top-1/2 -translate-y-1/2"
+          style={{ color: "var(--muted)" }}
         >
-          {show ? (
-            <EyeOff size={20} />
-          ) : (
-            <Eye size={20} />
-          )}
+          {show ? <EyeOff size={18} /> : <Eye size={18} />}
         </button>
-
       </div>
-
     </div>
   );
-}
+});
+
+export default PasswordField;

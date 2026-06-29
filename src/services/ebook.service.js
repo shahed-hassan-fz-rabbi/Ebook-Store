@@ -1,21 +1,42 @@
 import axiosInstance from "@/lib/axios";
 
-export const getAllEbooks = () => {
-  return axiosInstance.get("/ebooks");
+export const getAllEbooks = async () => {
+  const res = await axiosInstance.get("/ebooks");
+
+  return res.data;
 };
 
-export const getSingleEbook = (id) => {
-  return axiosInstance.get(`/ebooks/${id}`);
+export const getSingleEbook = async (id) => {
+  const res = await axiosInstance.get(`/ebooks/${id}`);
+
+  return res.data;
 };
 
-export const createEbook = (data) => {
-  return axiosInstance.post("/ebooks", data);
+export const createEbook = async (data) => {
+  const res = await axiosInstance.post(
+    "/ebooks",
+    data
+  );
+
+  return res.data;
 };
 
-export const updateEbook = (id, data) => {
-  return axiosInstance.patch(`/ebooks/${id}`, data);
+export const updateEbook = async (
+  id,
+  data
+) => {
+  const res = await axiosInstance.patch(
+    `/ebooks/${id}`,
+    data
+  );
+
+  return res.data;
 };
 
-export const deleteEbook = (id) => {
-  return axiosInstance.delete(`/ebooks/${id}`);
+export const deleteEbook = async (id) => {
+  const res = await axiosInstance.delete(
+    `/ebooks/${id}`
+  );
+
+  return res.data;
 };

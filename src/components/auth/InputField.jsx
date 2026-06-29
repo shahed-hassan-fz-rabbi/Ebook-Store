@@ -1,63 +1,28 @@
 "use client";
 
-export default function InputField({
-  label,
-  icon,
-  className = "",
-  ...props
-}) {
+import { forwardRef } from "react";
+
+const InputField = forwardRef(function InputField(
+  { label, type = "text", placeholder, ...props },
+  ref
+) {
   return (
-    <div className="space-y-2">
-
-      <label
-        className="block text-sm font-semibold"
-        style={{ color: "var(--brand)" }}
-      >
-        {label}
-      </label>
-
-      <div className="relative">
-
-        <div
-          className="
-          absolute
-          left-4
-          top-1/2
-          -translate-y-1/2
-          flex
-          items-center
-          justify-center
-          pointer-events-none
-          "
-          style={{ color: "var(--muted)" }}
-        >
-          {icon}
-        </div>
-
-        <input
-          {...props}
-          className={`
-            w-full
-            h-14
-            rounded-xl
-            border
-            pl-12
-            pr-4
-            bg-white
-            text-[15px]
-            outline-none
-            transition-all
-            duration-200
-            focus:ring-4
-            ${className}
-          `}
-          style={{
-            borderColor: "#E8E8E8",
-          }}
-        />
-
-      </div>
-
+    <div className="flex flex-col gap-1.5">
+      {label && (
+        <label className="text-sm font-medium" style={{ color: "var(--brand)" }}>
+          {label}
+        </label>
+      )}
+      <input
+        ref={ref}
+        type={type}
+        placeholder={placeholder}
+        className="w-full rounded-xl px-4 py-3.5 outline-none text-sm border border-gray-200 focus:border-orange-500 focus:ring-4 focus:ring-orange-100 transition"
+        style={{ color: "var(--brand)", background: "var(--background)" }}
+        {...props}
+      />
     </div>
   );
-}
+});
+
+export default InputField;

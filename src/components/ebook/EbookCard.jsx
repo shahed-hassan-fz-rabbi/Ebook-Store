@@ -3,185 +3,140 @@
 import Image from "next/image";
 import Link from "next/link";
 import { motion } from "framer-motion";
-
 import {
   Star,
   Bookmark,
-  ShoppingBag,
+  ShoppingCart,
   UserRound,
   BookOpen,
+  Eye,
 } from "lucide-react";
 
 export default function EbookCard({ ebook }) {
   return (
     <motion.div
-      whileHover={{
-        y: -8,
-      }}
-      transition={{
-        duration: .25,
-      }}
-      className="group overflow-hidden rounded-3xl border"
-      style={{
-        background: "var(--white)",
-        borderColor: "var(--border)",
-        boxShadow: "0 8px 30px rgba(0,0,0,.05)",
-      }}
+      whileHover={{ y: -8 }}
+      transition={{ duration: 0.25 }}
+      className="group overflow-hidden rounded-3xl border border-gray-200 bg-white shadow-sm hover:shadow-2xl transition-all duration-300"
     >
-      {/* Image */}
-
-      <div className="relative overflow-hidden aspect-[3/4]">
-
+      {/* Image Section */}
+      <div className="relative aspect-[3/4] overflow-hidden">
         <Image
-          src={ebook.cover}
+          src={
+            ebook.cover ||
+            "https://placehold.co/600x800?text=No+Cover"
+          }
           alt={ebook.title}
           fill
-          className="object-cover transition-transform duration-500 group-hover:scale-110"
+          className="object-cover transition duration-500 group-hover:scale-110"
         />
 
+        {/* Overlay */}
+        <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent" />
+
         {/* Genre */}
+        <span className="absolute top-4 left-4 rounded-full bg-white px-3 py-1 text-xs font-semibold text-orange-600 shadow">
+          {ebook.genre}
+        </span>
 
-        <div className="absolute top-4 left-4">
-
-          <span
-            className="px-3 py-1 rounded-full text-xs font-semibold"
-            style={{
-              background: "rgba(255,255,255,.9)",
-              color: "var(--brand)",
-            }}
-          >
-            {ebook.genre}
-          </span>
-
-        </div>
-
-        {/* Bookmark */}
-
-        <button
-          className="absolute top-4 right-4 w-10 h-10 rounded-full flex items-center justify-center transition"
-          style={{
-            background: "rgba(255,255,255,.9)",
-          }}
+        {/* Status */}
+        <span
+          className={`absolute top-4 right-4 rounded-full px-3 py-1 text-xs font-semibold shadow ${
+            ebook.status === "sold"
+              ? "bg-red-500 text-white"
+              : "bg-green-500 text-white"
+          }`}
         >
-          <Bookmark
-            size={18}
-            color="var(--primary)"
-          />
-        </button>
+          {ebook.status === "sold" ? "Sold" : "Available"}
+        </span>
 
+        {/* Hover Button */}
+        <motion.div
+          initial={{ opacity: 0 }}
+          whileHover={{ opacity: 1 }}
+          className="absolute inset-0 flex items-center justify-center"
+        >
+          <Link href={`/ebooks/${ebook._id}`}>
+            <button className="rounded-xl bg-white px-5 py-3 font-semibold text-gray-900 shadow-lg transition hover:bg-orange-500 hover:text-white">
+              <Eye className="mr-2 inline" size={18} />
+              View Details
+            </button>
+          </Link>
+        </motion.div>
       </div>
 
       {/* Body */}
-
       <div className="p-6">
-
-        <Link
-          href={`/ebooks/${ebook._id}`}
-        >
-          <h2
-            className="text-xl font-bold line-clamp-2 hover:text-orange-500 transition"
-            style={{
-              color: "var(--brand)",
-            }}
-          >
+        {/* Title */}
+        <Link href={`/ebooks/${ebook._id}`}>
+          <h2 className="line-clamp-2 text-xl font-bold text-gray-900 transition hover:text-orange-500">
             {ebook.title}
           </h2>
         </Link>
 
         {/* Writer */}
-
-        <div className="flex items-center gap-2 mt-4">
-
+        <div className="mt-4 flex items-center gap-2">
           <UserRound
-            size={17}
-            color="var(--primary)"
+            size={18}
+            className="text-orange-500"
           />
 
-          <p
-            className="text-sm"
-            style={{
-              color: "var(--muted)",
-            }}
-          >
-            {ebook.writer}
-          </p>
-
+          <span className="text-sm text-gray-500">
+            {ebook.authorName || ebook.writer}
+          </span>
         </div>
 
-        {/* Rating */}
-
-        <div className="flex items-center justify-between mt-5">
-
+        {/* Rating + Sold */}
+        <div className="mt-5 flex items-center justify-between">
           <div className="flex items-center gap-2">
-
             <Star
               size={17}
               fill="#FACC15"
               color="#FACC15"
             />
 
-            <span className="text-sm">
-
-              {ebook.rating}
-
+            <span className="font-medium">
+              {ebook.rating || 5}
             </span>
-
           </div>
 
-          <div
-            className="flex items-center gap-2"
-          >
+          <div className="flex items-center gap-2">
             <BookOpen
               size={17}
-              color="var(--primary)"
+              className="text-orange-500"
             />
 
-            <span
-              className="text-sm"
-            >
-              {ebook.sold} Sold
+            <span className="text-sm text-gray-500">
+              {ebook.sold || 0} Sold
             </span>
-
           </div>
-
         </div>
+
+        {/* Divider */}
+        <div className="my-5 border-t"></div>
 
         {/* Bottom */}
+        <div className="flex items-center justify-between">
+          <div>
+            <p className="text-xs uppercase tracking-wide text-gray-400">
+              Price
+            </p>
 
-        <div className="flex items-center justify-between mt-6">
-
-          <h3
-            className="text-2xl font-bold"
-            style={{
-              color: "var(--primary)",
-            }}
-          >
-            ${ebook.price}
-          </h3>
+            <h3 className="text-3xl font-bold text-orange-500">
+              ${ebook.price}
+            </h3>
+          </div>
 
           <motion.button
-            whileTap={{
-              scale: .95,
-            }}
-            whileHover={{
-              scale: 1.05,
-            }}
-            className="flex items-center gap-2 px-5 py-3 rounded-xl font-semibold"
-            style={{
-              background: "var(--primary)",
-              color: "white",
-            }}
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.95 }}
+            className="flex items-center gap-2 rounded-xl bg-orange-500 px-5 py-3 font-semibold text-white transition hover:bg-orange-600"
           >
-            <ShoppingBag size={18} />
-
+            <ShoppingCart size={18} />
             Buy
-
           </motion.button>
-
         </div>
-
       </div>
-
     </motion.div>
   );
 }
