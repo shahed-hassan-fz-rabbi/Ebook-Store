@@ -3,22 +3,16 @@
 import { useQuery } from "@tanstack/react-query";
 import { getAllEbooks } from "@/services/ebook.service";
 
-const useEBooks = () => {
-  const {
-    data,
-    isLoading,
-    error,
-    refetch,
-  } = useQuery({
-    queryKey: ["ebooks"],
-    queryFn: getAllEbooks,
+const useEBooks = (params = {}) => {
+  const query = useQuery({
+    queryKey: ["ebooks", params],
+    queryFn: () => getAllEbooks(params),
   });
 
   return {
-    ebooks: data?.data || [],
-    isLoading,
-    error,
-    refetch,
+    ebooks: query.data?.data?.result || [],
+    meta: query.data?.data?.meta || {},
+    ...query,
   };
 };
 

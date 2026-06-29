@@ -11,33 +11,45 @@ const genres = [
   "Biography",
 ];
 
-export default function GenreChips() {
+export default function GenreChips({
+  genre,
+  setGenre,
+}) {
   return (
     <div className="flex flex-wrap gap-3">
 
-      {genres.map((genre, index) => (
+      {genres.map((item) => (
 
         <button
-          key={genre}
-          className="px-5 py-2 rounded-full font-medium transition-all"
+          key={item}
+          onClick={() =>
+            setGenre(
+              item === "All"
+                ? ""
+                : item
+            )
+          }
+          className="px-5 py-2 rounded-full transition"
+
           style={{
             background:
-              index === 0
+              genre === item ||
+              (genre === "" &&
+                item === "All")
                 ? "var(--primary)"
-                : "white",
+                : "#fff",
 
             color:
-              index === 0
-                ? "white"
+              genre === item ||
+              (genre === "" &&
+                item === "All")
+                ? "#fff"
                 : "var(--brand)",
 
-            border:
-              index === 0
-                ? "none"
-                : "1px solid var(--border)",
+            border: "1px solid var(--border)",
           }}
         >
-          {genre}
+          {item}
         </button>
 
       ))}

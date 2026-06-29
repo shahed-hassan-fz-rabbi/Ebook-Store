@@ -1,25 +1,32 @@
 "use client";
 
-export default function SortDropdown() {
+export default function SortDropdown({
+  sort,
+  setSort,
+}) {
   return (
     <select
-      className="
-      px-5
-      py-3
-      rounded-xl
-      bg-white
-      border
-      outline-none
-      "
-      style={{
-        borderColor: "var(--border)",
-      }}
+      value={sort}
+      onChange={(e) =>
+        setSort(e.target.value)
+      }
+      className="px-5 py-3 rounded-xl border bg-white"
     >
-      <option>Most Popular</option>
-      <option>Newest</option>
-      <option>Highest Rated</option>
-      <option>Price Low → High</option>
-      <option>Price High → Low</option>
+      <option value="">
+        Most Popular
+      </option>
+
+      <option value="-createdAt">
+        Newest
+      </option>
+
+      <option value="price">
+        Price Low → High
+      </option>
+
+      <option value="-price">
+        Price High → Low
+      </option>
     </select>
   );
 }

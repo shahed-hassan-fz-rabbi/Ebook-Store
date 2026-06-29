@@ -2,7 +2,10 @@
 
 import { Search } from "lucide-react";
 
-export default function SearchBar() {
+export default function SearchBar({
+  search,
+  setSearch,
+}) {
   return (
     <div className="relative">
 
@@ -13,19 +16,12 @@ export default function SearchBar() {
 
       <input
         type="text"
-        placeholder="Search ebooks, writers..."
-        className="
-        w-full
-        rounded-2xl
-        py-4
-        pl-14
-        pr-5
-        border
-        bg-white
-        shadow-sm
-        outline-none
-        focus:ring-4
-        "
+        value={search}
+        onChange={(e) =>
+          setSearch(e.target.value)
+        }
+        placeholder="Search ebooks..."
+        className="w-full rounded-2xl py-4 pl-14 pr-5 border bg-white shadow-sm outline-none focus:ring-4"
         style={{
           borderColor: "var(--border)",
         }}
