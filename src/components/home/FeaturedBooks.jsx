@@ -1,9 +1,23 @@
 "use client";
 
-import mockEbooks from "@/data/mockEbooks";
 import EbookCard from "@/components/ebook/EbookCard";
+import useEBooks from "@/hooks/useEBooks";
 
 export default function FeaturedBooks() {
+  const { ebooks, isLoading } = useEBooks();
+
+  if (isLoading) {
+    return (
+      <section className="section-padding">
+        <div className="container text-center">
+          <h2 className="text-2xl font-bold">
+            Loading Featured Books...
+          </h2>
+        </div>
+      </section>
+    );
+  }
+
   return (
     <section className="section-padding">
       <div className="container">
@@ -24,7 +38,7 @@ export default function FeaturedBooks() {
         </div>
 
         <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
-          {mockEbooks.map((book) => (
+          {ebooks.slice(0, 6).map((book) => (
             <EbookCard
               key={book._id}
               ebook={book}

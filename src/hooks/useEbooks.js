@@ -16,7 +16,6 @@ const useEBooks = () => {
 
   return {
     ebooks: data?.data || [],
-    meta: data?.meta || {},
     isLoading,
     error,
     refetch,
