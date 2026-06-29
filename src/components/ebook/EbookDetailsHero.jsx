@@ -1,7 +1,13 @@
 "use client";
 
 import Image from "next/image";
+import { useRouter } from "next/navigation";
 import { motion } from "framer-motion";
+import toast from "react-hot-toast";
+
+import { checkout } from "@/services/purchase.service";
+import { addBookmark } from "@/services/bookmark.service";
+
 import {
   Star,
   UserRound,
@@ -11,15 +17,41 @@ import {
 } from "lucide-react";
 
 export default function EbookDetailsHero({ ebook }) {
+  const router = useRouter();
+
+  const handleBuyNow = async () => {
+    try {
+      const res = await checkout(ebook._id);
+
+      // Backend returns Stripe URL in data
+      window.location.href = res.data;
+    } catch (error) {
+      toast.error(
+        error?.response?.data?.message || "Checkout failed"
+      );
+    }
+  };
+
+  const handleBookmark = async () => {
+    try {
+      await addBookmark(ebook._id);
+
+      toast.success("Added to Bookmark");
+    } catch (error) {
+      toast.error(
+        error?.response?.data?.message || "Bookmark failed"
+      );
+    }
+  };
+
+  if (!ebook) return null;
+
   return (
     <section className="section-padding">
-
       <div className="container">
-
         <div className="grid lg:grid-cols-12 gap-14 items-start">
 
           {/* Left */}
-
           <motion.div
             initial={{ opacity: 0, x: -40 }}
             animate={{ opacity: 1, x: 0 }}
@@ -32,7 +64,11 @@ export default function EbookDetailsHero({ ebook }) {
               }}
             >
               <Image
-                src={ebook.cover}
+                src={
+                  ebook.coverImage ||
+                  ebook.cover ||
+                  "https://placehold.co/500x700?text=No+Cover"
+                }
                 alt={ebook.title}
                 width={500}
                 height={700}
@@ -42,13 +78,11 @@ export default function EbookDetailsHero({ ebook }) {
           </motion.div>
 
           {/* Right */}
-
           <motion.div
             initial={{ opacity: 0, x: 40 }}
             animate={{ opacity: 1, x: 0 }}
             className="lg:col-span-8"
           >
-
             <span
               className="px-4 py-2 rounded-full text-sm font-semibold"
               style={{
@@ -72,7 +106,7 @@ export default function EbookDetailsHero({ ebook }) {
 
               <div className="flex items-center gap-2">
                 <UserRound size={18} />
-                {ebook.writer}
+                {ebook.author?.name || ebook.writer || "Unknown Writer"}
               </div>
 
               <div className="flex items-center gap-2">
@@ -81,12 +115,12 @@ export default function EbookDetailsHero({ ebook }) {
                   fill="#facc15"
                   color="#facc15"
                 />
-                {ebook.rating}
+                {ebook.averageRating || ebook.rating || 0}
               </div>
 
               <div className="flex items-center gap-2">
                 <BookOpen size={18} />
-                {ebook.sold} Sold
+                {ebook.totalSales || ebook.sold || 0} Sold
               </div>
 
             </div>
@@ -112,21 +146,16 @@ export default function EbookDetailsHero({ ebook }) {
               </h2>
 
               <button
-                className="px-8 py-4 rounded-xl font-semibold flex items-center gap-2"
-                style={{
-                  background: "var(--primary)",
-                  color: "white",
-                }}
+                onClick={handleBuyNow}
+                className="px-8 py-4 rounded-xl font-semibold flex items-center gap-2 bg-orange-500 hover:bg-orange-600 transition text-white"
               >
                 <ShoppingBag size={20} />
                 Buy Now
               </button>
 
               <button
-                className="px-8 py-4 rounded-xl border flex items-center gap-2"
-                style={{
-                  borderColor: "var(--border)",
-                }}
+                onClick={handleBookmark}
+                className="px-8 py-4 rounded-xl border hover:bg-gray-100 transition flex items-center gap-2"
               >
                 <Bookmark size={18} />
                 Bookmark
@@ -137,9 +166,7 @@ export default function EbookDetailsHero({ ebook }) {
           </motion.div>
 
         </div>
-
       </div>
-
     </section>
   );
 }
