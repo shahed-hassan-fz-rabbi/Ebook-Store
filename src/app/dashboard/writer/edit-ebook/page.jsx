@@ -1,31 +1,43 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { useSearchParams } from "next/navigation";
 import { useRouter } from "next/navigation";
 import toast from "react-hot-toast";
 
-import { createEbook } from "@/services/ebook.service";
+import {
+  getSingleEbook,
+  updateEbook,
+} from "@/services/ebook.service";
 
-const initialData = {
-  title: "",
-  description: "",
-  content: "",
-  coverImage: "",
-  genre: "",
-  language: "English",
-  price: "",
-};
+export default function EditEbookPage() {
+  const id =
+    useSearchParams().get("id");
 
-export default function AddEbookPage() {
   const router = useRouter();
 
-  const [loading, setLoading] = useState(false);
-  const [formData, setFormData] = useState(initialData);
+  const [loading, setLoading] =
+    useState(false);
+
+  const [formData, setFormData] =
+    useState(null);
+
+  useEffect(() => {
+    const load = async () => {
+      const res =
+        await getSingleEbook(id);
+
+      setFormData(res.data);
+    };
+
+    if (id) load();
+  }, [id]);
 
   const handleChange = (e) => {
     setFormData({
       ...formData,
-      [e.target.name]: e.target.value,
+      [e.target.name]:
+        e.target.value,
     });
   };
 
@@ -35,29 +47,39 @@ export default function AddEbookPage() {
     try {
       setLoading(true);
 
-      await createEbook({
+      await updateEbook(id, {
         ...formData,
-        price: Number(formData.price),
+        price: Number(
+          formData.price
+        ),
       });
 
-      toast.success("Ebook Created");
+      toast.success(
+        "Updated Successfully"
+      );
 
-      router.push("/dashboard/writer/manage-ebooks");
+      router.push(
+        "/dashboard/writer/manage-ebooks"
+      );
     } catch (err) {
       toast.error(
-        err?.response?.data?.message ||
-          "Create Failed"
+        err?.response?.data
+          ?.message ||
+          "Update Failed"
       );
     } finally {
       setLoading(false);
     }
   };
 
+  if (!formData)
+    return <h2>Loading...</h2>;
+
   return (
     <div className="bg-white rounded-xl p-8 shadow">
 
       <h1 className="text-3xl font-bold mb-8">
-        Add Ebook
+        Edit Ebook
       </h1>
 
       <form
@@ -67,69 +89,62 @@ export default function AddEbookPage() {
 
         <input
           name="title"
-          placeholder="Title"
-          className="input input-bordered w-full"
           value={formData.title}
           onChange={handleChange}
-          required
+          className="input input-bordered w-full"
         />
 
         <input
           name="coverImage"
-          placeholder="Cover Image URL"
-          className="input input-bordered w-full"
-          value={formData.coverImage}
+          value={
+            formData.coverImage
+          }
           onChange={handleChange}
-          required
+          className="input input-bordered w-full"
         />
 
         <textarea
           name="description"
-          placeholder="Description"
-          className="textarea textarea-bordered w-full"
           rows={4}
-          value={formData.description}
+          value={
+            formData.description
+          }
           onChange={handleChange}
-          required
+          className="textarea textarea-bordered w-full"
         />
 
         <textarea
           name="content"
-          placeholder="Full Content"
-          className="textarea textarea-bordered w-full"
           rows={8}
           value={formData.content}
           onChange={handleChange}
-          required
+          className="textarea textarea-bordered w-full"
         />
 
         <div className="grid md:grid-cols-3 gap-4">
 
           <input
             name="genre"
-            placeholder="Genre"
-            className="input input-bordered"
             value={formData.genre}
             onChange={handleChange}
-            required
+            className="input input-bordered"
           />
 
           <input
             name="language"
-            placeholder="Language"
-            className="input input-bordered"
-            value={formData.language}
+            value={
+              formData.language
+            }
             onChange={handleChange}
+            className="input input-bordered"
           />
 
           <input
             type="number"
             name="price"
-            placeholder="Price"
-            className="input input-bordered"
             value={formData.price}
             onChange={handleChange}
-            required
+            className="input input-bordered"
           />
 
         </div>
@@ -139,8 +154,8 @@ export default function AddEbookPage() {
           className="btn bg-orange-500 hover:bg-orange-600 text-white w-full"
         >
           {loading
-            ? "Creating..."
-            : "Create Ebook"}
+            ? "Updating..."
+            : "Update Ebook"}
         </button>
 
       </form>
