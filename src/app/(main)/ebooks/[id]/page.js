@@ -1,19 +1,24 @@
 "use client";
 
-import { useParams } from "next/navigation";
+import { use } from "react";
 
 import useSingleEbook from "@/hooks/useSingleEbook";
 
 import EbookDetailsHero from "@/components/ebook/EbookDetailsHero";
 import EbookDescription from "@/components/ebook/EbookDescription";
 import EbookInformation from "@/components/ebook/EbookInformation";
-import ReviewSection from "@/components/ebook/ReviewSection";
 import RelatedBooks from "@/components/ebook/RelatedBooks";
+import ReviewSection from "@/components/ebook/ReviewSection";
 
-export default function EbookDetailsPage() {
-  const { id } = useParams();
+export default function EbookDetailsPage({
+  params,
+}) {
+  const { id } = use(params);
 
-  const { ebook, isLoading } = useSingleEbook(id);
+  const {
+    ebook,
+    isLoading,
+  } = useSingleEbook(id);
 
   if (isLoading) {
     return (

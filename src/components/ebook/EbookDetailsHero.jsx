@@ -1,7 +1,6 @@
 "use client";
 
 import Image from "next/image";
-import { useRouter } from "next/navigation";
 import { motion } from "framer-motion";
 import toast from "react-hot-toast";
 
@@ -17,17 +16,16 @@ import {
 } from "lucide-react";
 
 export default function EbookDetailsHero({ ebook }) {
-  const router = useRouter();
-
   const handleBuyNow = async () => {
     try {
       const res = await checkout(ebook._id);
 
-      // Backend returns Stripe URL in data
+      // Stripe Checkout URL
       window.location.href = res.data;
     } catch (error) {
       toast.error(
-        error?.response?.data?.message || "Checkout failed"
+        error?.response?.data?.message ||
+          "Checkout failed"
       );
     }
   };
@@ -39,7 +37,8 @@ export default function EbookDetailsHero({ ebook }) {
       toast.success("Added to Bookmark");
     } catch (error) {
       toast.error(
-        error?.response?.data?.message || "Bookmark failed"
+        error?.response?.data?.message ||
+          "Bookmark failed"
       );
     }
   };
@@ -49,24 +48,18 @@ export default function EbookDetailsHero({ ebook }) {
   return (
     <section className="section-padding">
       <div className="container">
-        <div className="grid lg:grid-cols-12 gap-14 items-start">
+        <div className="grid lg:grid-cols-12 gap-14">
 
-          {/* Left */}
+          {/* Cover */}
           <motion.div
-            initial={{ opacity: 0, x: -40 }}
+            initial={{ opacity: 0, x: -30 }}
             animate={{ opacity: 1, x: 0 }}
             className="lg:col-span-4"
           >
-            <div
-              className="overflow-hidden rounded-3xl"
-              style={{
-                boxShadow: "0 20px 50px rgba(0,0,0,.08)",
-              }}
-            >
+            <div className="overflow-hidden rounded-3xl shadow-xl">
               <Image
                 src={
                   ebook.coverImage ||
-                  ebook.cover ||
                   "https://placehold.co/500x700?text=No+Cover"
                 }
                 alt={ebook.title}
@@ -77,14 +70,14 @@ export default function EbookDetailsHero({ ebook }) {
             </div>
           </motion.div>
 
-          {/* Right */}
+          {/* Info */}
           <motion.div
-            initial={{ opacity: 0, x: 40 }}
+            initial={{ opacity: 0, x: 30 }}
             animate={{ opacity: 1, x: 0 }}
             className="lg:col-span-8"
           >
             <span
-              className="px-4 py-2 rounded-full text-sm font-semibold"
+              className="inline-block rounded-full px-4 py-2 text-sm font-semibold"
               style={{
                 background: "var(--card)",
                 color: "var(--primary)",
@@ -94,7 +87,7 @@ export default function EbookDetailsHero({ ebook }) {
             </span>
 
             <h1
-              className="text-5xl font-bold mt-6"
+              className="mt-6 text-5xl font-bold"
               style={{
                 color: "var(--brand)",
               }}
@@ -102,25 +95,34 @@ export default function EbookDetailsHero({ ebook }) {
               {ebook.title}
             </h1>
 
-            <div className="flex flex-wrap gap-8 mt-8">
+            <div className="mt-8 flex flex-wrap gap-8">
 
               <div className="flex items-center gap-2">
                 <UserRound size={18} />
-                {ebook.author?.name || ebook.writer || "Unknown Writer"}
+                <span>
+                  {ebook.author?.name ||
+                    "Unknown Writer"}
+                </span>
               </div>
 
               <div className="flex items-center gap-2">
                 <Star
                   size={18}
-                  fill="#facc15"
-                  color="#facc15"
+                  fill="#FACC15"
+                  color="#FACC15"
                 />
-                {ebook.averageRating || ebook.rating || 0}
+                <span>
+                  {Number(
+                    ebook.averageRating || 0
+                  ).toFixed(1)}
+                </span>
               </div>
 
               <div className="flex items-center gap-2">
                 <BookOpen size={18} />
-                {ebook.totalSales || ebook.sold || 0} Sold
+                <span>
+                  {ebook.totalSales || 0} Sold
+                </span>
               </div>
 
             </div>
@@ -134,7 +136,35 @@ export default function EbookDetailsHero({ ebook }) {
               {ebook.description}
             </p>
 
-            <div className="flex flex-wrap items-center gap-5 mt-10">
+            {/* Extra Info */}
+
+            <div className="mt-10 grid grid-cols-2 gap-5 rounded-2xl border p-6">
+
+              <div>
+                <p className="text-sm text-gray-500">
+                  Language
+                </p>
+
+                <h4 className="font-semibold">
+                  {ebook.language}
+                </h4>
+              </div>
+
+              <div>
+                <p className="text-sm text-gray-500">
+                  Status
+                </p>
+
+                <h4 className="font-semibold capitalize">
+                  {ebook.status}
+                </h4>
+              </div>
+
+            </div>
+
+            {/* Price */}
+
+            <div className="mt-10 flex flex-wrap items-center gap-5">
 
               <h2
                 className="text-5xl font-bold"
@@ -147,7 +177,7 @@ export default function EbookDetailsHero({ ebook }) {
 
               <button
                 onClick={handleBuyNow}
-                className="px-8 py-4 rounded-xl font-semibold flex items-center gap-2 bg-orange-500 hover:bg-orange-600 transition text-white"
+                className="rounded-xl bg-orange-500 px-8 py-4 font-semibold text-white transition hover:bg-orange-600 flex items-center gap-2"
               >
                 <ShoppingBag size={20} />
                 Buy Now
@@ -155,7 +185,7 @@ export default function EbookDetailsHero({ ebook }) {
 
               <button
                 onClick={handleBookmark}
-                className="px-8 py-4 rounded-xl border hover:bg-gray-100 transition flex items-center gap-2"
+                className="rounded-xl border px-8 py-4 transition hover:bg-gray-100 flex items-center gap-2"
               >
                 <Bookmark size={18} />
                 Bookmark
