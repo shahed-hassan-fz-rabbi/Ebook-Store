@@ -1,10 +1,10 @@
 import axiosInstance from "@/lib/axios";
 
-export const getAnalytics =
+export const getWriterDashboard =
   async () => {
     const res =
       await axiosInstance.get(
-        "/admin/analytics"
+        "/writer/dashboard"
       );
 
     return res.data;

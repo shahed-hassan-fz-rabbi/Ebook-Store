@@ -1,10 +1,21 @@
 "use client";
 
 import Link from "next/link";
-import { usePathname } from "next/navigation";
-import { useState, useEffect } from "react";
+import { usePathname, useRouter } from "next/navigation";
+import { useState, useEffect, useContext } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Menu, X, User, LogIn, BookOpen } from "lucide-react";
+import {
+  Menu,
+  X,
+  User,
+  LogIn,
+  BookOpen,
+  LogOut,
+  Moon,
+  Sun,
+} from "lucide-react";
+
+import { AuthContext } from "@/context/AuthContext";
 
 const NAV_LINKS = [
   { label: "Home", href: "/" },
@@ -17,8 +28,13 @@ function Logo() {
   return (
     <Link href="/" className="flex items-center gap-2 group">
       <motion.div
-        whileHover={{ scale: 1.1 }}
-        whileTap={{ scale: 0.95 }}
+        whileHover={{
+          scale: 1.08,
+          rotate: -5,
+        }}
+        whileTap={{
+          scale: 0.95,
+        }}
         className="w-9 h-9 rounded-lg flex items-center justify-center"
         style={{ backgroundColor: "var(--primary)" }}
       >
@@ -36,11 +52,21 @@ function Logo() {
 
 export default function Navbar() {
   const pathname = usePathname();
+  const router = useRouter();
   const [menuOpen, setMenuOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
 
-  // temporary
-  const user = null;
+  // Auth Context & Theme States
+  const { user, logout } = useContext(AuthContext);
+  const [darkMode, setDarkMode] = useState(false);
+
+  // Dynamic Dashboard Path Resolver
+  const dashboardPath =
+    user?.role === "admin"
+      ? "/dashboard/admin"
+      : user?.role === "writer"
+      ? "/dashboard/writer"
+      : "/dashboard/user";
 
   const isActive = (href) => {
     if (href === "/") return pathname === "/";
@@ -60,6 +86,31 @@ export default function Navbar() {
   useEffect(() => {
     setMenuOpen(false);
   }, [pathname]);
+
+  // Dark Mode Initial Check
+  useEffect(() => {
+    const theme = localStorage.getItem("theme");
+    if (theme === "dark") {
+      document.documentElement.classList.add("dark");
+      setDarkMode(true);
+    }
+  }, []);
+
+  const toggleTheme = () => {
+    if (darkMode) {
+      document.documentElement.classList.remove("dark");
+      localStorage.setItem("theme", "light");
+    } else {
+      document.documentElement.classList.add("dark");
+      localStorage.setItem("theme", "dark");
+    }
+    setDarkMode(!darkMode);
+  };
+
+  const handleLogout = () => {
+    logout();
+    router.push("/");
+  };
 
   return (
     <motion.header
@@ -114,19 +165,63 @@ export default function Navbar() {
 
           {/* Desktop Auth */}
           <div className="hidden md:flex items-center gap-3">
+            {/* Theme Toggle Button */}
+            <button
+              onClick={toggleTheme}
+              className="p-2 rounded-lg border"
+              style={{
+                borderColor: "var(--border)",
+                color: "var(--brand)",
+              }}
+              aria-label="Toggle theme"
+            >
+              {darkMode ? <Sun size={18} /> : <Moon size={18} />}
+            </button>
+
             {user ? (
-              <Link
-                href="/dashboard/user"
-                className="flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium"
-                style={{
-                  backgroundColor: "var(--card)",
-                  color: "var(--brand)",
-                  border: "1px solid var(--border)",
-                }}
-              >
-                <User size={16} />
-                Dashboard
-              </Link>
+              <div className="flex items-center gap-3">
+                {/* Profile Avatar */}
+                <div
+                  className="w-10 h-10 rounded-full flex items-center justify-center font-bold overflow-hidden"
+                  style={{
+                    background: "var(--primary)",
+                    color: "white",
+                  }}
+                >
+                  {user?.photo ? (
+                    <img
+                      src={user.photo}
+                      alt={user.name}
+                      className="w-full h-full object-cover"
+                    />
+                  ) : (
+                    user?.name?.charAt(0).toUpperCase()
+                  )}
+                </div>
+
+                {/* Dashboard Link */}
+                <Link
+                  href={dashboardPath}
+                  className="flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-medium"
+                  style={{
+                    background: "var(--card)",
+                    border: "1px solid var(--border)",
+                    color: "var(--brand)",
+                  }}
+                >
+                  <User size={16} />
+                  {user.name}
+                </Link>
+
+                {/* Logout Button */}
+                <button
+                  onClick={handleLogout}
+                  className="px-4 py-2 rounded-lg bg-red-500 text-white flex items-center gap-2 text-sm font-medium transition-colors hover:bg-red-600"
+                >
+                  <LogOut size={16} />
+                  Logout
+                </button>
+              </div>
             ) : (
               <>
                 <Link
@@ -146,7 +241,7 @@ export default function Navbar() {
                       color: "var(--white)",
                     }}
                   >
-                    Get Started
+                    Register
                   </Link>
                 </motion.div>
               </>
@@ -226,17 +321,48 @@ export default function Navbar() {
                   style={{ borderColor: "var(--border)" }}
                 >
                   {user ? (
-                    <Link
-                      href="/dashboard/user"
-                      className="flex items-center gap-2 px-4 py-3 rounded-lg text-sm font-medium"
-                      style={{
-                        backgroundColor: "var(--card)",
-                        color: "var(--brand)",
-                      }}
-                    >
-                      <User size={16} />
-                      Dashboard
-                    </Link>
+                    <>
+                      <Link
+                        href={dashboardPath}
+                        className="flex items-center gap-2 px-4 py-3 rounded-lg text-sm font-medium"
+                        style={{
+                          backgroundColor: "var(--card)",
+                          color: "var(--brand)",
+                        }}
+                      >
+                        <User size={16} />
+                        Dashboard
+                      </Link>
+
+                      <button
+                        onClick={handleLogout}
+                        className="flex items-center gap-2 px-4 py-3 rounded-lg bg-red-500 text-white text-sm font-medium"
+                      >
+                        <LogOut size={16} />
+                        Logout
+                      </button>
+
+                      <button
+                        onClick={toggleTheme}
+                        className="flex items-center gap-2 px-4 py-3 rounded-lg border text-sm font-medium"
+                        style={{
+                          borderColor: "var(--border)",
+                          color: "var(--brand)",
+                        }}
+                      >
+                        {darkMode ? (
+                          <>
+                            <Sun size={18} />
+                            Light Mode
+                          </>
+                        ) : (
+                          <>
+                            <Moon size={18} />
+                            Dark Mode
+                          </>
+                        )}
+                      </button>
+                    </>
                   ) : (
                     <>
                       <Link
@@ -255,8 +381,30 @@ export default function Navbar() {
                           color: "var(--white)",
                         }}
                       >
-                        Get Started
+                        Register
                       </Link>
+                      
+                      {/* Mobile Theme Toggle (When Logged Out) */}
+                      <button
+                        onClick={toggleTheme}
+                        className="flex items-center gap-2 px-4 py-3 rounded-lg border text-sm font-medium"
+                        style={{
+                          borderColor: "var(--border)",
+                          color: "var(--brand)",
+                        }}
+                      >
+                        {darkMode ? (
+                          <>
+                            <Sun size={18} />
+                            Light Mode
+                          </>
+                        ) : (
+                          <>
+                            <Moon size={18} />
+                            Dark Mode
+                          </>
+                        )}
+                      </button>
                     </>
                   )}
                 </div>

@@ -2,9 +2,13 @@
 
 import ProtectedRoute from "@/components/auth/ProtectedRoute";
 
-export default function WriterLayout({ children }) {
+export default function UserLayout({
+  children,
+}) {
   return (
-    <ProtectedRoute roles={["writer"]}>
+    <ProtectedRoute
+      roles={["reader"]}
+    >
       {children}
     </ProtectedRoute>
   );
