@@ -14,6 +14,8 @@ export const getBookmarks = async () => {
   return res.data;
 };
 
+
+
 export const removeBookmark = async (id) => {
   const res = await axiosInstance.delete(
     `/bookmarks/${id}`
