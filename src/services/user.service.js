@@ -1,9 +1,32 @@
 import axiosInstance from "@/lib/axios";
 
-export const getProfile = () => {
-  return axiosInstance.get("/users/profile");
+export const getAllUsers = async () => {
+  const res = await axiosInstance.get("/users");
+  return res.data;
 };
 
-export const updateProfile = (data) => {
-  return axiosInstance.patch("/users/profile", data);
+export const blockUser = async (id) => {
+  const res = await axiosInstance.patch(
+    `/users/${id}/block`
+  );
+  return res.data;
+};
+
+export const unblockUser = async (id) => {
+  const res = await axiosInstance.patch(
+    `/users/${id}/unblock`
+  );
+  return res.data;
+};
+
+export const changeRole = async (
+  id,
+  role
+) => {
+  const res = await axiosInstance.patch(
+    `/users/${id}/role`,
+    { role }
+  );
+
+  return res.data;
 };
