@@ -30,3 +30,8 @@ export const changeRole = async (
 
   return res.data;
 };
+
+export const getReaderDashboard = async () => {
+  const res = await axiosInstance.get("/users/dashboard");
+  return res.data;
+};

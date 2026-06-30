@@ -13,6 +13,7 @@ import {
   LogOut,
   Moon,
   Sun,
+  ChevronDown
 } from "lucide-react";
 
 import { AuthContext } from "@/context/AuthContext";
@@ -26,27 +27,47 @@ const NAV_LINKS = [
 
 function Logo() {
   return (
-    <Link href="/" className="flex items-center gap-2 group">
+    <Link href="/" className="flex items-center gap-2.5 group shrink-0">
       <motion.div
-        whileHover={{
-          scale: 1.08,
-          rotate: -5,
-        }}
-        whileTap={{
-          scale: 0.95,
-        }}
-        className="w-9 h-9 rounded-lg flex items-center justify-center"
+        whileHover={{ scale: 1.05 }}
+        whileTap={{ scale: 0.95 }}
+        className="w-9 h-9 rounded-xl flex items-center justify-center shrink-0 shadow-sm transition-shadow group-hover:shadow-md"
         style={{ backgroundColor: "var(--primary)" }}
       >
-        <BookOpen size={20} color="white" strokeWidth={2.5} />
+        <BookOpen size={18} color="white" strokeWidth={2.5} />
       </motion.div>
       <span
-        className="text-xl font-bold tracking-tight"
-        style={{ color: "var(--brand)" }}
+        className="text-xl font-bold tracking-tight whitespace-nowrap bg-gradient-to-r from-[var(--brand)] to-[var(--primary)] bg-clip-text text-transparent"
       >
         Fable
       </span>
     </Link>
+  );
+}
+
+function AvatarCircle({ user, size = 36 }) {
+  return (
+    <div
+      className="rounded-full flex items-center justify-center font-semibold overflow-hidden shrink-0 border border-neutral-200 dark:border-neutral-800 shadow-sm"
+      style={{
+        width: size,
+        height: size,
+        background: "var(--card)",
+        color: "var(--brand)",
+        fontSize: size * 0.38,
+      }}
+    >
+      {user?.photo ? (
+        // eslint-disable-next-line @next/next/no-img-element
+        <img
+          src={user.photo}
+          alt={user.name || "User avatar"}
+          className="w-full h-full object-cover"
+        />
+      ) : (
+        user?.name?.charAt(0).toUpperCase() || <User size={size * 0.5} />
+      )}
+    </div>
   );
 }
 
@@ -55,12 +76,14 @@ export default function Navbar() {
   const router = useRouter();
   const [menuOpen, setMenuOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
+  const [mounted, setMounted] = useState(false);
 
-  // Auth Context & Theme States
-  const { user, logout } = useContext(AuthContext);
+  const auth = useContext(AuthContext) || {};
+  const { user, logout } = auth;
+  const authLoading = auth.loading ?? false;
+
   const [darkMode, setDarkMode] = useState(false);
 
-  // Dynamic Dashboard Path Resolver
   const dashboardPath =
     user?.role === "admin"
       ? "/dashboard/admin"
@@ -73,346 +96,238 @@ export default function Navbar() {
     return pathname.startsWith(href);
   };
 
-  // Scroll effect
   useEffect(() => {
-    const handleScroll = () => {
-      setScrolled(window.scrollY > 10);
-    };
+    const handleScroll = () => setScrolled(window.scrollY > 20);
     window.addEventListener("scroll", handleScroll);
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
-  // Close menu on route change
   useEffect(() => {
     setMenuOpen(false);
   }, [pathname]);
 
-  // Dark Mode Initial Check
   useEffect(() => {
     const theme = localStorage.getItem("theme");
     if (theme === "dark") {
       document.documentElement.classList.add("dark");
       setDarkMode(true);
     }
+    setMounted(true);
   }, []);
 
   const toggleTheme = () => {
-    if (darkMode) {
-      document.documentElement.classList.remove("dark");
-      localStorage.setItem("theme", "light");
-    } else {
-      document.documentElement.classList.add("dark");
-      localStorage.setItem("theme", "dark");
-    }
-    setDarkMode(!darkMode);
+    const next = !darkMode;
+    document.documentElement.classList.toggle("dark", next);
+    localStorage.setItem("theme", next ? "dark" : "light");
+    setDarkMode(next);
   };
 
   const handleLogout = () => {
-    logout();
+    logout?.();
     router.push("/");
   };
 
   return (
     <motion.header
-      initial={{ y: -80, opacity: 0 }}
+      initial={{ y: -20, opacity: 0 }}
       animate={{ y: 0, opacity: 1 }}
-      transition={{ duration: 0.4, ease: "easeOut" }}
-      className="sticky top-0 z-50 w-full border-b"
+      transition={{ duration: 0.3 }}
+      className="sticky top-0 z-50 w-full border-b backdrop-blur-md transition-all duration-300"
       style={{
-        backgroundColor: scrolled
-          ? "rgba(255, 249, 245, 0.95)"
-          : "var(--background)",
-        borderColor: "var(--border)",
-        backdropFilter: scrolled ? "blur(10px)" : "none",
-        boxShadow: scrolled ? "0 2px 20px var(--shadow)" : "none",
-        transition: "all 0.3s ease",
+        backgroundColor: scrolled ? "var(--background-blur, rgba(255,255,255,0.85))" : "transparent",
+        borderColor: scrolled ? "var(--border)" : "transparent",
+        boxShadow: scrolled ? "0 4px 20px -2px var(--shadow, rgba(0,0,0,0.03))" : "none",
       }}
     >
-      <div className="container">
-        <div className="flex items-center justify-between h-16">
-
-          {/* Logo */}
+      <div className="container mx-auto px-4 max-w-7xl">
+        <div className="flex items-center justify-between h-16 gap-4">
+          
           <Logo />
 
-          {/* Desktop Nav */}
-          <nav className="hidden md:flex items-center gap-1">
-            {NAV_LINKS.map((link) => (
-              <Link
-                key={link.href}
-                href={link.href}
-                className="relative px-4 py-2 rounded-lg text-sm transition-all"
-                style={{
-                  color: isActive(link.href) ? "var(--primary)" : "var(--brand)",
-                  fontWeight: isActive(link.href) ? "600" : "500",
-                  backgroundColor: isActive(link.href) ? "var(--card)" : "transparent",
-                }}
-              >
-                {link.label}
-                {isActive(link.href) && (
-                  <motion.div
-                    layoutId="activeIndicator"
-                    className="absolute bottom-0 left-1/2 w-1 h-1 rounded-full"
-                    style={{
-                      backgroundColor: "var(--primary)",
-                      transform: "translateX(-50%)",
-                      bottom: "4px",
-                    }}
-                  />
-                )}
-              </Link>
-            ))}
+          {/* Desktop Nav — Center Sliding Active State Indicator */}
+          <nav className="hidden md:flex items-center gap-1 flex-1 justify-center">
+            {NAV_LINKS.map((link) => {
+              const active = isActive(link.href);
+              return (
+                <Link
+                  key={link.href}
+                  href={link.href}
+                  className="relative px-4 py-2 text-sm font-medium transition-colors hover:text-[var(--primary)] whitespace-nowrap"
+                  style={{
+                    color: active ? "var(--primary)" : "var(--brand)",
+                  }}
+                >
+                  <span className="relative z-10">{link.label}</span>
+                  {active && (
+                    <motion.span
+                      layoutId="activeNavIndicator"
+                      className="absolute bottom-0 left-4 right-4 h-[2px] rounded-full"
+                      style={{ backgroundColor: "var(--primary)" }}
+                      transition={{ type: "spring", stiffness: 380, damping: 30 }}
+                    />
+                  )}
+                </Link>
+              );
+            })}
           </nav>
 
-          {/* Desktop Auth */}
-          <div className="hidden md:flex items-center gap-3">
+          {/* Desktop Actions */}
+          <div className="hidden md:flex items-center gap-4 shrink-0">
             {/* Theme Toggle Button */}
             <button
               onClick={toggleTheme}
-              className="p-2 rounded-lg border"
-              style={{
-                borderColor: "var(--border)",
-                color: "var(--brand)",
-              }}
+              className="p-2 rounded-xl transition-colors hover:bg-neutral-100 dark:hover:bg-neutral-800 text-[var(--brand)]"
               aria-label="Toggle theme"
             >
-              {darkMode ? <Sun size={18} /> : <Moon size={18} />}
+              {mounted && darkMode ? <Sun size={18} /> : <Moon size={18} />}
             </button>
 
-            {user ? (
+            {authLoading ? (
+              <div className="w-20 h-9 rounded-xl animate-pulse bg-neutral-200 dark:bg-neutral-800" />
+            ) : user ? (
               <div className="flex items-center gap-3">
-                {/* Profile Avatar */}
-                <div
-                  className="w-10 h-10 rounded-full flex items-center justify-center font-bold overflow-hidden"
-                  style={{
-                    background: "var(--primary)",
-                    color: "white",
-                  }}
-                >
-                  {user?.photo ? (
-                    <img
-                      src={user.photo}
-                      alt={user.name}
-                      className="w-full h-full object-cover"
-                    />
-                  ) : (
-                    user?.name?.charAt(0).toUpperCase()
-                  )}
-                </div>
-
-                {/* Dashboard Link */}
                 <Link
                   href={dashboardPath}
-                  className="flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-medium"
+                  className="flex items-center gap-2.5 pl-2 pr-3 py-1.5 rounded-xl text-sm font-medium border transition-all hover:bg-neutral-50 dark:hover:bg-neutral-900 shadow-sm"
                   style={{
-                    background: "var(--card)",
-                    border: "1px solid var(--border)",
+                    borderColor: "var(--border)",
                     color: "var(--brand)",
                   }}
                 >
-                  <User size={16} />
-                  {user.name}
+                  <AvatarCircle user={user} size={28} />
+                  <span className="max-w-[100px] truncate">{user.name}</span>
+                  <ChevronDown size={14} className="text-neutral-400" />
                 </Link>
 
-                {/* Logout Button */}
                 <button
                   onClick={handleLogout}
-                  className="px-4 py-2 rounded-lg bg-red-500 text-white flex items-center gap-2 text-sm font-medium transition-colors hover:bg-red-600"
+                  className="p-2 rounded-xl text-neutral-500 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-950/30 transition-colors"
+                  title="Logout"
                 >
-                  <LogOut size={16} />
-                  Logout
+                  <LogOut size={18} />
                 </button>
               </div>
             ) : (
-              <>
+              <div className="flex items-center gap-2">
                 <Link
                   href="/login"
-                  className="flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium"
+                  className="px-4 py-2 rounded-xl text-sm font-medium transition-colors hover:bg-neutral-100 dark:hover:bg-neutral-800"
                   style={{ color: "var(--brand)" }}
                 >
-                  <LogIn size={16} />
                   Login
                 </Link>
-                <motion.div whileHover={{ scale: 1.03 }} whileTap={{ scale: 0.97 }}>
+                <motion.div whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}>
                   <Link
                     href="/register"
-                    className="flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-semibold"
-                    style={{
-                      backgroundColor: "var(--primary)",
-                      color: "var(--white)",
-                    }}
+                    className="px-4 py-2 rounded-xl text-sm font-semibold text-white shadow-sm transition-all hover:shadow-md"
+                    style={{ backgroundColor: "var(--primary)" }}
                   >
                     Register
                   </Link>
                 </motion.div>
-              </>
+              </div>
             )}
           </div>
 
-          {/* Hamburger */}
-          <motion.button
-            whileTap={{ scale: 0.9 }}
-            className="md:hidden p-2 rounded-lg"
-            style={{ color: "var(--brand)" }}
-            onClick={() => setMenuOpen(!menuOpen)}
+          {/* Mobile Menu Button */}
+          <button
+            className="md:hidden p-2 rounded-xl text-[var(--brand)] hover:bg-neutral-100 dark:hover:bg-neutral-800 transition-colors"
+            onClick={() => setMenuOpen((v) => !v)}
             aria-label="Toggle menu"
           >
-            <AnimatePresence mode="wait">
-              {menuOpen ? (
-                <motion.div
-                  key="close"
-                  initial={{ rotate: -90, opacity: 0 }}
-                  animate={{ rotate: 0, opacity: 1 }}
-                  exit={{ rotate: 90, opacity: 0 }}
-                  transition={{ duration: 0.2 }}
-                >
-                  <X size={22} />
-                </motion.div>
-              ) : (
-                <motion.div
-                  key="open"
-                  initial={{ rotate: 90, opacity: 0 }}
-                  animate={{ rotate: 0, opacity: 1 }}
-                  exit={{ rotate: -90, opacity: 0 }}
-                  transition={{ duration: 0.2 }}
-                >
-                  <Menu size={22} />
-                </motion.div>
-              )}
-            </AnimatePresence>
-          </motion.button>
-
+            {menuOpen ? <X size={20} /> : <Menu size={20} />}
+          </button>
         </div>
 
-        {/* Mobile Menu */}
+        {/* Mobile Dropdown Menu */}
         <AnimatePresence>
           {menuOpen && (
             <motion.div
-              initial={{ opacity: 0, height: 0 }}
-              animate={{ opacity: 1, height: "auto" }}
-              exit={{ opacity: 0, height: 0 }}
-              transition={{ duration: 0.3, ease: "easeInOut" }}
-              className="md:hidden overflow-hidden border-t"
+              initial={{ opacity: 0, y: -10 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -10 }}
+              transition={{ duration: 0.15 }}
+              className="md:hidden absolute top-16 left-0 right-0 border-b bg-white dark:bg-neutral-950 px-4 py-4 flex flex-col gap-1 shadow-xl"
               style={{ borderColor: "var(--border)" }}
             >
-              <div className="py-4 flex flex-col gap-1">
-                {NAV_LINKS.map((link, index) => (
-                  <motion.div
+              {NAV_LINKS.map((link) => {
+                const active = isActive(link.href);
+                return (
+                  <Link
                     key={link.href}
-                    initial={{ opacity: 0, x: -20 }}
-                    animate={{ opacity: 1, x: 0 }}
-                    transition={{ delay: index * 0.05 }}
+                    href={link.href}
+                    className="block px-4 py-2.5 rounded-xl text-sm font-medium transition-colors"
+                    style={{
+                      color: active ? "var(--primary)" : "var(--brand)",
+                      backgroundColor: active ? "var(--card)" : "transparent",
+                    }}
                   >
+                    {link.label}
+                  </Link>
+                );
+              })}
+
+              <div className="h-px bg-neutral-200 dark:bg-neutral-800 my-2" />
+
+              <div className="flex flex-col gap-2">
+                {authLoading ? (
+                  <div className="h-10 rounded-xl animate-pulse bg-neutral-200 dark:bg-neutral-800" />
+                ) : user ? (
+                  <>
                     <Link
-                      href={link.href}
-                      className="block px-4 py-3 rounded-lg text-sm"
-                      style={{
-                        color: isActive(link.href) ? "var(--primary)" : "var(--brand)",
-                        backgroundColor: isActive(link.href) ? "var(--card)" : "transparent",
-                        fontWeight: isActive(link.href) ? "600" : "500",
-                      }}
+                      href={dashboardPath}
+                      className="flex items-center gap-3 px-4 py-2.5 rounded-xl text-sm font-medium bg-neutral-50 dark:bg-neutral-900"
+                      style={{ color: "var(--brand)" }}
                     >
-                      {link.label}
+                      <AvatarCircle user={user} size={28} />
+                      <span className="truncate">{user.name}</span>
                     </Link>
-                  </motion.div>
-                ))}
+                    <button
+                      onClick={handleLogout}
+                      className="flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-medium text-red-500 hover:bg-red-50 dark:hover:bg-red-950/20 transition-colors"
+                    >
+                      <LogOut size={16} />
+                      Logout
+                    </button>
+                  </>
+                ) : (
+                  <>
+                    <Link
+                      href="/login"
+                      className="flex items-center justify-center h-10 rounded-xl text-sm font-medium border"
+                      style={{ borderColor: "var(--border)", color: "var(--brand)" }}
+                    >
+                      Login
+                    </Link>
+                    <Link
+                      href="/register"
+                      className="flex items-center justify-center h-10 rounded-xl text-sm font-semibold text-white"
+                      style={{ backgroundColor: "var(--primary)" }}
+                    >
+                      Register
+                    </Link>
+                  </>
+                )}
 
-                <div
-                  className="flex flex-col gap-2 mt-3 pt-3 border-t"
-                  style={{ borderColor: "var(--border)" }}
+                <button
+                  onClick={toggleTheme}
+                  className="flex items-center justify-center gap-2 h-10 rounded-xl border text-sm font-medium"
+                  style={{ borderColor: "var(--border)", color: "var(--brand)" }}
                 >
-                  {user ? (
+                  {mounted && darkMode ? (
                     <>
-                      <Link
-                        href={dashboardPath}
-                        className="flex items-center gap-2 px-4 py-3 rounded-lg text-sm font-medium"
-                        style={{
-                          backgroundColor: "var(--card)",
-                          color: "var(--brand)",
-                        }}
-                      >
-                        <User size={16} />
-                        Dashboard
-                      </Link>
-
-                      <button
-                        onClick={handleLogout}
-                        className="flex items-center gap-2 px-4 py-3 rounded-lg bg-red-500 text-white text-sm font-medium"
-                      >
-                        <LogOut size={16} />
-                        Logout
-                      </button>
-
-                      <button
-                        onClick={toggleTheme}
-                        className="flex items-center gap-2 px-4 py-3 rounded-lg border text-sm font-medium"
-                        style={{
-                          borderColor: "var(--border)",
-                          color: "var(--brand)",
-                        }}
-                      >
-                        {darkMode ? (
-                          <>
-                            <Sun size={18} />
-                            Light Mode
-                          </>
-                        ) : (
-                          <>
-                            <Moon size={18} />
-                            Dark Mode
-                          </>
-                        )}
-                      </button>
+                      <Sun size={16} /> Light Mode
                     </>
                   ) : (
                     <>
-                      <Link
-                        href="/login"
-                        className="flex items-center gap-2 px-4 py-3 rounded-lg text-sm font-medium"
-                        style={{ color: "var(--brand)" }}
-                      >
-                        <LogIn size={16} />
-                        Login
-                      </Link>
-                      <Link
-                        href="/register"
-                        className="flex items-center justify-center gap-2 px-4 py-3 rounded-lg text-sm font-semibold"
-                        style={{
-                          backgroundColor: "var(--primary)",
-                          color: "var(--white)",
-                        }}
-                      >
-                        Register
-                      </Link>
-                      
-                      {/* Mobile Theme Toggle (When Logged Out) */}
-                      <button
-                        onClick={toggleTheme}
-                        className="flex items-center gap-2 px-4 py-3 rounded-lg border text-sm font-medium"
-                        style={{
-                          borderColor: "var(--border)",
-                          color: "var(--brand)",
-                        }}
-                      >
-                        {darkMode ? (
-                          <>
-                            <Sun size={18} />
-                            Light Mode
-                          </>
-                        ) : (
-                          <>
-                            <Moon size={18} />
-                            Dark Mode
-                          </>
-                        )}
-                      </button>
+                      <Moon size={16} /> Dark Mode
                     </>
                   )}
-                </div>
+                </button>
               </div>
             </motion.div>
           )}
         </AnimatePresence>
-
       </div>
     </motion.header>
   );

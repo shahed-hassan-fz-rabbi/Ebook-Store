@@ -1,78 +1,157 @@
 "use client";
 
-import { createContext, useContext, useEffect, useState } from "react";
 import {
-  loginUser,
-  logoutUser,
-  registerUser,
-  getCurrentUser,
-} from "@/services/auth.service";
+  createContext,
+  useContext,
+  useEffect,
+  useState,
+} from "react";
 
+import { authClient } from "@/lib/auth-client";
+import axiosInstance from "@/lib/axios";
 
 export const AuthContext = createContext(null);
 
 export function AuthProvider({ children }) {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
-  const [token, setToken] = useState(null);
 
-  // Login
-  const login = async (data) => {
-    const res = await loginUser(data);
-    const accessToken = res.data.accessToken;
+  //--------------------------------------------------
+  // Load Current User (JWT)
+  //--------------------------------------------------
+
+  const fetchCurrentUser = async () => {
+  try {
+    const token = localStorage.getItem("accessToken");
+    if (!token) {
+      setUser(null);
+      return;
+    }
+    const res = await axiosInstance.get("/users/me");
+    setUser(res.data.data);
+  } catch (err) {
+    console.error("fetchCurrentUser failed:", err.response?.status, err.response?.data);
+    localStorage.removeItem("accessToken");
+    setUser(null);
+  }
+};
+
+  //--------------------------------------------------
+  // Better Auth Session Check (handles Google redirect)
+  //--------------------------------------------------
+
+  const checkSession = async () => {
+    try {
+      // If we already have our own JWT, just load the user
+      const existingToken = localStorage.getItem("accessToken");
+      if (existingToken) {
+        await fetchCurrentUser();
+        setLoading(false);
+        return;
+      }
+
+      // Otherwise check if there's a Better Auth session (Google)
+      const session = await authClient.getSession();
+
+      if (!session?.data?.user) {
+        setLoading(false);
+        return;
+      }
+
+      // We have a Better Auth session but no JWT yet (edge case)
+      // Sync it to get our JWT
+      const res = await axiosInstance.post("/users/google-sync", {
+        name: session.data.user.name,
+        email: session.data.user.email,
+        image: session.data.user.image,
+      });
+
+      localStorage.setItem("accessToken", res.data.data.accessToken);
+      setUser(res.data.data.user);
+    } catch (err) {
+      console.error(err);
+    }
+
+    setLoading(false);
+  };
+
+  //--------------------------------------------------
+  // Email Login (existing JWT API)
+  //--------------------------------------------------
+
+  const login = async ({ email, password }) => {
+    const res = await axiosInstance.post("/users/login", {
+      email,
+      password,
+    });
+
+    const { accessToken, user: loggedInUser } = res.data.data;
+
     localStorage.setItem("accessToken", accessToken);
-    setToken(accessToken);
-    await fetchCurrentUser();
+    setUser(loggedInUser);
+
+    return res.data;
   };
 
-  // Register
-  const register = async (data) => {
-    return await registerUser(data);
+  //--------------------------------------------------
+  // Email Register (existing JWT API)
+  //--------------------------------------------------
+
+  const register = async ({ name, email, password, role }) => {
+    const res = await axiosInstance.post("/users/register", {
+      name,
+      email,
+      password,
+      role,
+    });
+
+    const { accessToken, user: newUser } = res.data.data;
+
+    localStorage.setItem("accessToken", accessToken);
+    setUser(newUser);
+
+    return res.data;
   };
 
+  //--------------------------------------------------
+  // Google Login (Better Auth only)
+  //--------------------------------------------------
+
+  const googleLogin = async () => {
+    await authClient.signIn.social({
+      provider: "google",
+      callbackURL: `${process.env.NEXT_PUBLIC_APP_URL}/auth/callback`,
+    });
+  };
+
+  //--------------------------------------------------
   // Logout
+  //--------------------------------------------------
+
   const logout = async () => {
     try {
-      await logoutUser();
+      await authClient.signOut();
     } catch (err) {
-      console.error("Logout error:", err);
+      console.error(err);
     }
+
     localStorage.removeItem("accessToken");
-    setToken(null);
     setUser(null);
   };
 
-  // Current User
-  const fetchCurrentUser = async () => {
-    try {
-      const res = await getCurrentUser();
-      setUser(res.data);
-    } catch (error) {
-      setUser(null);
-    } finally {
-      setLoading(false);
-    }
-  };
-
   useEffect(() => {
-    const accessToken = localStorage.getItem("accessToken");
-    if (accessToken) {
-      setToken(accessToken);
-      fetchCurrentUser();
-    } else {
-      setLoading(false);
-    }
+    checkSession();
   }, []);
 
   return (
     <AuthContext.Provider
       value={{
         user,
-        token,
         loading,
         login,
-        logout,
         register,
+        googleLogin,
+        logout,
         fetchCurrentUser,
       }}
     >
@@ -80,6 +159,5 @@ export function AuthProvider({ children }) {
     </AuthContext.Provider>
   );
 }
-
 
 export const useAuth = () => useContext(AuthContext);
