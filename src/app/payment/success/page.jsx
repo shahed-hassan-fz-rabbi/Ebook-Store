@@ -1,47 +1,37 @@
 "use client";
 
+import { useEffect } from "react";
+import { useSearchParams } from "next/navigation";
 import Link from "next/link";
-import { CheckCircle2 } from "lucide-react";
+import { CheckCircle } from "lucide-react";
 
 export default function PaymentSuccessPage() {
+  const searchParams = useSearchParams();
+  const sessionId = searchParams.get("session_id");
+
   return (
-    <div className="min-h-screen flex items-center justify-center">
-
-      <div className="bg-white rounded-2xl shadow-xl p-10 text-center max-w-lg">
-
-        <CheckCircle2
-          size={80}
-          className="mx-auto text-green-500"
-        />
-
-        <h1 className="text-4xl font-bold mt-6">
-          Payment Successful
+    <div className="min-h-screen flex flex-col items-center justify-center text-center px-4 bg-gray-50">
+      <div className="bg-white rounded-3xl shadow-lg p-12 max-w-md w-full">
+        <CheckCircle size={64} className="text-green-500 mx-auto mb-6" />
+        <h1 className="text-3xl font-bold text-gray-900 mb-3">
+          Payment Successful!
         </h1>
-
-        <p className="text-gray-500 mt-4">
-          Thank you for purchasing this ebook.
+        <p className="text-gray-500 mb-8">
+          Your ebook has been added to your library. Happy reading!
         </p>
-
-        <div className="mt-8 flex gap-4 justify-center">
-
-          <Link
-            href="/dashboard/user/purchased-ebooks"
-            className="bg-orange-500 text-white px-6 py-3 rounded-xl"
-          >
-            My Books
+        <div className="flex flex-col sm:flex-row gap-3 justify-center">
+          <Link href="/dashboard/user">
+            <button className="w-full sm:w-auto px-6 py-3 bg-orange-500 text-white rounded-xl font-semibold hover:bg-orange-600 transition">
+              Go to My Library
+            </button>
           </Link>
-
-          <Link
-            href="/"
-            className="border px-6 py-3 rounded-xl"
-          >
-            Home
+          <Link href="/browse">
+            <button className="w-full sm:w-auto px-6 py-3 border border-gray-200 rounded-xl font-semibold hover:bg-gray-50 transition">
+              Browse More
+            </button>
           </Link>
-
         </div>
-
       </div>
-
     </div>
   );
 }
