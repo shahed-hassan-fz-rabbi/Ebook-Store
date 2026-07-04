@@ -1,36 +1,235 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://github.com/vercel/next.js/tree/canary/packages/create-next-app).
+# 📚 Fable - Ebook Sharing Platform
 
-## Getting Started
+Fable is a modern MERN-based Ebook Sharing Platform where readers can discover, purchase, and read ebooks, while writers can publish and manage their own ebooks. The platform includes secure authentication, Stripe payment integration, role-based dashboards, analytics, and reading progress tracking.
 
-First, run the development server:
+---
+
+## 🌐 Live Website
+
+https://your-vercel-link.vercel.app
+
+---
+
+## 🔑 Admin Credentials
+
+Email:
+admin@fable.com
+
+Password:
+Admin@123
+
+---
+
+## 🚀 Features
+
+### Authentication
+- Email & Password Login
+- Google Login
+- JWT Authentication
+- Role Based Access Control
+
+### Reader Features
+- Browse Ebooks
+- Ebook Details
+- Stripe Purchase
+- Purchased Library
+- Purchase History
+- Continue Reading
+- Reading Progress
+- Bookmark System
+- Reader Profile
+
+### Writer Features
+- Writer Verification
+- Add Ebook
+- Edit Ebook
+- Delete Ebook
+- Publish / Unpublish Ebook
+- Sales History
+- Writer Dashboard Analytics
+
+### Admin Features
+- Dashboard Analytics
+- Manage Users
+- Change User Roles
+- Block / Unblock Users
+- Manage All Ebooks
+- Publish / Unpublish Ebooks
+- Delete Ebooks
+- View All Transactions
+
+### Other Features
+- Responsive Design
+- Framer Motion Animations
+- Loading Skeleton
+- Global Loading Page
+- Custom 404 Page
+- Error Boundary
+- Search & Filtering
+- Pagination
+- Charts & Analytics
+
+---
+
+## 🛠️ Technologies Used
+
+### Frontend
+
+- Next.js
+- React
+- Tailwind CSS
+- DaisyUI
+- Framer Motion
+- Axios
+- Lucide React
+- Recharts
+- Sonner
+
+### Backend
+
+- Node.js
+- Express.js
+- MongoDB
+- Mongoose
+- JWT
+- Better Auth
+- Stripe
+- Cloudinary / ImgBB
+
+---
+
+## 📦 NPM Packages
+
+### Client
+
+- axios
+- framer-motion
+- lucide-react
+- recharts
+- sonner
+- next
+- react
+- react-dom
+
+### Server
+
+- express
+- mongoose
+- jsonwebtoken
+- bcryptjs
+- stripe
+- cors
+- dotenv
+- multer
+- cloudinary (or imgBB)
+
+---
+
+## ⚙️ Installation
+
+### Clone Repository
+
+```bash
+git clone <client_repo_url>
+```
+
+```bash
+git clone <server_repo_url>
+```
+
+---
+
+### Install Dependencies
+
+Client
+
+```bash
+npm install
+```
+
+Server
+
+```bash
+npm install
+```
+
+---
+
+### Environment Variables
+
+Frontend
+
+```env
+NEXT_PUBLIC_API_URL=
+
+NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY=
+
+NEXT_PUBLIC_IMGBB_KEY=
+```
+
+Backend
+
+```env
+PORT=
+
+DATABASE_URL=
+
+JWT_SECRET=
+
+STRIPE_SECRET_KEY=
+
+BETTER_AUTH_SECRET=
+
+CLIENT_URL=
+```
+
+---
+
+### Run Project
+
+Client
 
 ```bash
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Server
 
-You can start editing the page by modifying `app/page.js`. The page auto-updates as you edit the file.
+```bash
+npm run dev
+```
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+---
 
-## Learn More
+## 📂 Project Structure
 
-To learn more about Next.js, take a look at the following resources:
+```
+Client
+│
+├── src
+│   ├── app
+│   ├── components
+│   ├── context
+│   ├── hooks
+│   ├── lib
+│   └── utils
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+Server
+│
+├── src
+│   ├── modules
+│   ├── routes
+│   ├── middleware
+│   ├── utils
+│   └── config
+```
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+---
 
-## Deploy on Vercel
+## 👨‍💻 Developed By
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+Your Name
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+Department of Computer Science & Engineering
+
+Comilla University

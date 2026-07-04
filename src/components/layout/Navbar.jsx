@@ -1,29 +1,43 @@
 "use client";
 
 import Link from "next/link";
+import Image from "next/image";
 import { usePathname, useRouter } from "next/navigation";
-import { useState, useEffect, useContext } from "react";
+import { useState, useEffect, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import {
-  Menu,
-  X,
-  User,
-  LogIn,
-  BookOpen,
-  LogOut,
-  Moon,
-  Sun,
-  ChevronDown
+  Menu, X, User, LogIn, BookOpen, LogOut, Moon, Sun,
+  ChevronDown, LayoutDashboard, Bookmark, ShoppingBag,
+  BookMarked, PlusCircle, BarChart2, Users, Settings,
+  Shield, FileText, Search, Bell, PenTool
 } from "lucide-react";
+import { useAuth } from "@/context/AuthContext";
 
-import { AuthContext } from "@/context/AuthContext";
-
-const NAV_LINKS = [
-  { label: "Home", href: "/" },
-  { label: "Browse", href: "/browse" },
-  { label: "About", href: "/about" },
-  { label: "Contact", href: "/contact" },
-];
+// Role-based dropdown menu items
+const DROPDOWN_ITEMS = {
+  reader: [
+    { label: "Dashboard", href: "/dashboard/user", icon: LayoutDashboard },
+    { label: "My Library", href: "/dashboard/user/purchased-ebooks", icon: BookOpen },
+    { label: "Bookmarks", href: "/dashboard/user/bookmarks", icon: Bookmark },
+    { label: "Purchase History", href: "/dashboard/user/purchase-history", icon: ShoppingBag },
+    { label: "Profile", href: "/dashboard/user/profile", icon: User },
+  ],
+  writer: [
+    { label: "Dashboard", href: "/dashboard/writer", icon: LayoutDashboard },
+    { label: "Manage Ebooks", href: "/dashboard/writer/manage-ebooks", icon: BookMarked },
+    { label: "Add Ebook", href: "/dashboard/writer/add-ebook", icon: PlusCircle },
+    { label: "Sales History", href: "/dashboard/writer/sales-history", icon: BarChart2 },
+    { label: "Bookmarks", href: "/dashboard/writer/bookmarks", icon: Bookmark },
+    { label: "Profile", href: "/dashboard/writer/profile", icon: User },
+  ],
+  admin: [
+    { label: "Dashboard", href: "/dashboard/admin", icon: LayoutDashboard },
+    { label: "Manage Users", href: "/dashboard/admin/manage-users", icon: Users },
+    { label: "Manage Ebooks", href: "/dashboard/admin/manage-ebooks", icon: BookMarked },
+    { label: "Transactions", href: "/dashboard/admin/transactions", icon: FileText },
+    { label: "Analytics", href: "/dashboard/admin/analytics", icon: BarChart2 },
+  ],
+};
 
 function Logo() {
   return (
@@ -31,13 +45,14 @@ function Logo() {
       <motion.div
         whileHover={{ scale: 1.05 }}
         whileTap={{ scale: 0.95 }}
-        className="w-9 h-9 rounded-xl flex items-center justify-center shrink-0 shadow-sm transition-shadow group-hover:shadow-md"
+        className="w-9 h-9 rounded-xl flex items-center justify-center shrink-0 shadow-sm"
         style={{ backgroundColor: "var(--primary)" }}
       >
         <BookOpen size={18} color="white" strokeWidth={2.5} />
       </motion.div>
       <span
-        className="text-xl font-bold tracking-tight whitespace-nowrap bg-gradient-to-r from-[var(--brand)] to-[var(--primary)] bg-clip-text text-transparent"
+        className="text-xl font-bold tracking-tight whitespace-nowrap hidden sm:block"
+        style={{ color: "var(--brand)" }}
       >
         Fable
       </span>
@@ -45,28 +60,157 @@ function Logo() {
   );
 }
 
-function AvatarCircle({ user, size = 36 }) {
+function AvatarCircle({ user, size = 32 }) {
   return (
     <div
-      className="rounded-full flex items-center justify-center font-semibold overflow-hidden shrink-0 border border-neutral-200 dark:border-neutral-800 shadow-sm"
+      className="relative rounded-full flex items-center justify-center font-semibold overflow-hidden shrink-0 border"
       style={{
         width: size,
         height: size,
-        background: "var(--card)",
-        color: "var(--brand)",
+        background: "var(--primary)",
+        borderColor: "var(--border)",
+        color: "white",
         fontSize: size * 0.38,
       }}
     >
       {user?.photo ? (
-        // eslint-disable-next-line @next/next/no-img-element
-        <img
-          src={user.photo}
-          alt={user.name || "User avatar"}
-          className="w-full h-full object-cover"
+        <Image 
+          src={user.photo} 
+          alt={user.name || "User Avatar"} 
+          fill
+          className="object-cover" 
+          sizes={`${size}px`}
         />
       ) : (
         user?.name?.charAt(0).toUpperCase() || <User size={size * 0.5} />
       )}
+    </div>
+  );
+}
+
+function UserDropdown({ user, onLogout }) {
+  const [open, setOpen] = useState(false);
+  const ref = useRef(null);
+  const pathname = usePathname();
+
+  const roleKey =
+    user?.role === "admin" ? "admin"
+    : user?.role === "writer" ? "writer"
+    : "reader";
+
+  const items = DROPDOWN_ITEMS[roleKey] || DROPDOWN_ITEMS.reader;
+
+  useEffect(() => {
+    const handler = (e) => {
+      if (ref.current && !ref.current.contains(e.target)) setOpen(false);
+    };
+    document.addEventListener("mousedown", handler);
+    return () => document.removeEventListener("mousedown", handler);
+  }, []);
+
+  useEffect(() => {
+    setOpen(false);
+  }, [pathname]);
+
+  return (
+    <div ref={ref} className="relative">
+      <button
+        onClick={() => setOpen((v) => !v)}
+        className="flex items-center gap-2 pl-2 pr-3 py-1.5 rounded-full text-sm font-medium border transition-all"
+        style={{
+          borderColor: open ? "var(--primary)" : "var(--border)",
+          color: "var(--brand)",
+          backgroundColor: open ? "var(--card)" : "transparent",
+        }}
+      >
+        <AvatarCircle user={user} size={28} />
+        {/* Fixed Name Truncation */}
+        <span className="max-w-[90px] truncate hidden sm:block">
+          {user?.name?.split(" ")[0]}
+        </span>
+        <ChevronDown
+          size={14}
+          className="transition-transform duration-200"
+          style={{
+            transform: open ? "rotate(180deg)" : "rotate(0deg)",
+            color: "var(--muted)",
+          }}
+        />
+      </button>
+
+      <AnimatePresence>
+        {open && (
+          <motion.div
+            initial={{ opacity: 0, y: 6, scale: 0.97 }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
+            exit={{ opacity: 0, y: 6, scale: 0.97 }}
+            transition={{ duration: 0.15 }}
+            className="absolute right-0 top-full mt-2 w-56 rounded-2xl border shadow-xl overflow-hidden z-50"
+            style={{
+              backgroundColor: "var(--background)",
+              borderColor: "var(--border)",
+              boxShadow: "0 8px 30px rgba(0,0,0,0.1)",
+            }}
+          >
+            {/* Premium Header with 40px Avatar */}
+            <div
+              className="px-4 py-3 border-b flex items-center gap-3"
+              style={{ borderColor: "var(--border)", backgroundColor: "var(--card)" }}
+            >
+              <AvatarCircle user={user} size={40} />
+              <div className="flex flex-col min-w-0">
+                <p className="text-sm font-semibold truncate" style={{ color: "var(--brand)" }}>
+                  {user.name}
+                </p>
+                <p className="text-xs truncate capitalize mt-0.5 font-medium" style={{ color: "var(--primary)" }}>
+                  {roleKey}
+                </p>
+              </div>
+            </div>
+
+            <div className="py-1.5">
+              {items.map(({ label, href, icon: Icon }) => (
+                <Link
+                  key={href}
+                  href={href}
+                  className="flex items-center gap-3 px-4 py-2.5 text-sm transition-colors"
+                  style={{ color: "var(--brand)" }}
+                  onMouseEnter={(e) => {
+                    e.currentTarget.style.backgroundColor = "var(--card)";
+                    e.currentTarget.style.color = "var(--primary)";
+                  }}
+                  onMouseLeave={(e) => {
+                    e.currentTarget.style.backgroundColor = "transparent";
+                    e.currentTarget.style.color = "var(--brand)";
+                  }}
+                >
+                  <Icon size={15} style={{ color: "var(--primary)" }} />
+                  {label}
+                </Link>
+              ))}
+            </div>
+
+            <div
+              className="border-t py-1.5"
+              style={{ borderColor: "var(--border)" }}
+            >
+              <button
+                onClick={onLogout}
+                className="flex w-full items-center gap-3 px-4 py-2.5 text-sm text-red-500 transition-colors"
+                onMouseEnter={(e) =>
+                  (e.currentTarget.style.backgroundColor = "rgba(239,68,68,0.06)")
+                }
+                onMouseLeave={(e) =>
+                  (e.currentTarget.style.backgroundColor = "transparent")
+                }
+              >
+                <LogOut size={15} />
+                Logout
+              </button>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   );
 }
@@ -77,34 +221,42 @@ export default function Navbar() {
   const [menuOpen, setMenuOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
   const [mounted, setMounted] = useState(false);
-
-  const auth = useContext(AuthContext) || {};
-  const { user, logout } = auth;
-  const authLoading = auth.loading ?? false;
-
   const [darkMode, setDarkMode] = useState(false);
+  const [searchQuery, setSearchQuery] = useState("");
 
-  const dashboardPath =
-    user?.role === "admin"
-      ? "/dashboard/admin"
-      : user?.role === "writer"
-      ? "/dashboard/writer"
-      : "/dashboard/user";
+  const { user, logout, loading: authLoading } = useAuth();
 
-  const isActive = (href) => {
-    if (href === "/") return pathname === "/";
-    return pathname.startsWith(href);
-  };
+  // 1. Dynamic Links Based on User
+  const navLinks = [
+    { label: "Home", href: "/" },
+    { label: "Browse", href: "/browse" },
+    ...(user
+      ? [
+          {
+            label: "Dashboard",
+            href:
+              user.role === "admin"
+                ? "/dashboard/admin"
+                : user.role === "writer"
+                ? "/dashboard/writer"
+                : "/dashboard/user",
+          },
+        ]
+      : []),
+    { label: "About", href: "/about" },
+    { label: "Contact", href: "/contact" },
+  ];
+
+  const isActive = (href) =>
+    href === "/" ? pathname === "/" : pathname.startsWith(href);
 
   useEffect(() => {
-    const handleScroll = () => setScrolled(window.scrollY > 20);
-    window.addEventListener("scroll", handleScroll);
-    return () => window.removeEventListener("scroll", handleScroll);
+    const onScroll = () => setScrolled(window.scrollY > 20);
+    window.addEventListener("scroll", onScroll);
+    return () => window.removeEventListener("scroll", onScroll);
   }, []);
 
-  useEffect(() => {
-    setMenuOpen(false);
-  }, [pathname]);
+  useEffect(() => { setMenuOpen(false); }, [pathname]);
 
   useEffect(() => {
     const theme = localStorage.getItem("theme");
@@ -127,6 +279,13 @@ export default function Navbar() {
     router.push("/");
   };
 
+  const handleSearch = (e) => {
+    e.preventDefault();
+    if(searchQuery.trim()) {
+      router.push(`/browse?q=${encodeURIComponent(searchQuery)}`);
+    }
+  };
+
   return (
     <motion.header
       initial={{ y: -20, opacity: 0 }}
@@ -134,34 +293,50 @@ export default function Navbar() {
       transition={{ duration: 0.3 }}
       className="sticky top-0 z-50 w-full border-b backdrop-blur-md transition-all duration-300"
       style={{
-        backgroundColor: scrolled ? "var(--background-blur, rgba(255,255,255,0.85))" : "transparent",
+        backgroundColor: scrolled ? "var(--card)" : "transparent",
         borderColor: scrolled ? "var(--border)" : "transparent",
-        boxShadow: scrolled ? "0 4px 20px -2px var(--shadow, rgba(0,0,0,0.03))" : "none",
+        boxShadow: scrolled ? "0 4px 20px -2px rgba(0,0,0,0.06)" : "none",
       }}
     >
-      <div className="container mx-auto px-4 max-w-7xl">
-        <div className="flex items-center justify-between h-16 gap-4">
-          
+      <div className="container mx-auto px-4 xl:px-8 max-w-7xl">
+        <div className="flex items-center justify-between h-16 gap-3 lg:gap-6">
           <Logo />
 
-          {/* Desktop Nav — Center Sliding Active State Indicator */}
-          <nav className="hidden md:flex items-center gap-1 flex-1 justify-center">
-            {NAV_LINKS.map((link) => {
+          {/* 2. Search Box (Desktop) */}
+          <form onSubmit={handleSearch} className="hidden lg:flex items-center relative flex-1 max-w-sm">
+            <Search size={16} className="absolute left-3" style={{ color: "var(--muted)" }} />
+            <input
+              type="text"
+              placeholder="Search ebooks, authors..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="w-full h-10 pl-9 pr-4 rounded-full text-sm outline-none transition-all border"
+              style={{
+                backgroundColor: "var(--card)",
+                borderColor: "var(--border)",
+                color: "var(--brand)",
+              }}
+              onFocus={(e) => e.target.style.borderColor = "var(--primary)"}
+              onBlur={(e) => e.target.style.borderColor = "var(--border)"}
+            />
+          </form>
+
+          {/* Desktop Nav Links */}
+          <nav className="hidden xl:flex items-center gap-1">
+            {navLinks.map((link) => {
               const active = isActive(link.href);
               return (
                 <Link
                   key={link.href}
                   href={link.href}
-                  className="relative px-4 py-2 text-sm font-medium transition-colors hover:text-[var(--primary)] whitespace-nowrap"
-                  style={{
-                    color: active ? "var(--primary)" : "var(--brand)",
-                  }}
+                  className="relative px-3 py-2 text-sm font-medium transition-colors whitespace-nowrap"
+                  style={{ color: active ? "var(--primary)" : "var(--brand)" }}
                 >
-                  <span className="relative z-10">{link.label}</span>
+                  {link.label}
                   {active && (
                     <motion.span
-                      layoutId="activeNavIndicator"
-                      className="absolute bottom-0 left-4 right-4 h-[2px] rounded-full"
+                      layoutId="activeNavBar"
+                      className="absolute bottom-0 left-3 right-3 h-[2px] rounded-full"
                       style={{ backgroundColor: "var(--primary)" }}
                       transition={{ type: "spring", stiffness: 380, damping: 30 }}
                     />
@@ -171,67 +346,78 @@ export default function Navbar() {
             })}
           </nav>
 
-          {/* Desktop Actions */}
-          <div className="hidden md:flex items-center gap-4 shrink-0">
-            {/* Theme Toggle Button */}
+          {/* Desktop Right */}
+          <div className="hidden md:flex items-center gap-3 shrink-0">
+            
+            {/* 3. Become Writer Button (Visible only to readers) */}
+            {user?.role === "reader" && (
+              <Link 
+                href="/become-writer" 
+                className="hidden lg:flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-bold transition-all hover:scale-105 border shadow-sm"
+                style={{ backgroundColor: "var(--card)", color: "var(--primary)", borderColor: "var(--border)" }}
+              >
+                <PenTool size={14} />
+                Become Writer
+              </Link>
+            )}
+
+            {/* 4. Notification Bell */}
+            <button
+              className="relative p-2 rounded-full transition-colors border shadow-sm"
+              style={{ backgroundColor: "var(--card)", borderColor: "var(--border)", color: "var(--brand)" }}
+              aria-label="Notifications"
+            >
+              <Bell size={16} />
+              {/* Optional unread indicator */}
+              <span className="absolute top-1 right-1 w-2 h-2 rounded-full" style={{ backgroundColor: "var(--primary)" }} />
+            </button>
+
+            <div className="w-px h-5 mx-1" style={{ backgroundColor: "var(--border)" }} />
+
             <button
               onClick={toggleTheme}
-              className="p-2 rounded-xl transition-colors hover:bg-neutral-100 dark:hover:bg-neutral-800 text-[var(--brand)]"
+              className="p-2 rounded-full transition-colors border shadow-sm"
+              style={{ backgroundColor: "var(--card)", borderColor: "var(--border)", color: "var(--brand)" }}
               aria-label="Toggle theme"
             >
-              {mounted && darkMode ? <Sun size={18} /> : <Moon size={18} />}
+              {mounted && darkMode ? <Sun size={16} /> : <Moon size={16} />}
             </button>
 
             {authLoading ? (
-              <div className="w-20 h-9 rounded-xl animate-pulse bg-neutral-200 dark:bg-neutral-800" />
+              <div
+                className="w-24 h-9 rounded-full animate-pulse ml-2"
+                style={{ backgroundColor: "var(--card)" }}
+              />
             ) : user ? (
-              <div className="flex items-center gap-3">
-                <Link
-                  href={dashboardPath}
-                  className="flex items-center gap-2.5 pl-2 pr-3 py-1.5 rounded-xl text-sm font-medium border transition-all hover:bg-neutral-50 dark:hover:bg-neutral-900 shadow-sm"
-                  style={{
-                    borderColor: "var(--border)",
-                    color: "var(--brand)",
-                  }}
-                >
-                  <AvatarCircle user={user} size={28} />
-                  <span className="max-w-[100px] truncate">{user.name}</span>
-                  <ChevronDown size={14} className="text-neutral-400" />
-                </Link>
-
-                <button
-                  onClick={handleLogout}
-                  className="p-2 rounded-xl text-neutral-500 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-950/30 transition-colors"
-                  title="Logout"
-                >
-                  <LogOut size={18} />
-                </button>
+              <div className="ml-2">
+                <UserDropdown user={user} onLogout={handleLogout} />
               </div>
             ) : (
-              <div className="flex items-center gap-2">
+              <div className="flex items-center gap-2 ml-2">
                 <Link
                   href="/login"
-                  className="px-4 py-2 rounded-xl text-sm font-medium transition-colors hover:bg-neutral-100 dark:hover:bg-neutral-800"
-                  style={{ color: "var(--brand)" }}
+                  className="px-4 py-2 rounded-full text-sm font-medium transition-colors border"
+                  style={{ borderColor: "var(--border)", color: "var(--brand)" }}
+                  onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = "var(--card)")}
+                  onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = "transparent")}
                 >
                   Login
                 </Link>
-                <motion.div whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}>
-                  <Link
-                    href="/register"
-                    className="px-4 py-2 rounded-xl text-sm font-semibold text-white shadow-sm transition-all hover:shadow-md"
-                    style={{ backgroundColor: "var(--primary)" }}
-                  >
-                    Register
-                  </Link>
-                </motion.div>
+                <Link
+                  href="/register"
+                  className="px-4 py-2 rounded-full text-sm font-semibold text-white shadow-sm"
+                  style={{ backgroundColor: "var(--primary)" }}
+                >
+                  Register
+                </Link>
               </div>
             )}
           </div>
 
-          {/* Mobile Menu Button */}
+          {/* Mobile Hamburger */}
           <button
-            className="md:hidden p-2 rounded-xl text-[var(--brand)] hover:bg-neutral-100 dark:hover:bg-neutral-800 transition-colors"
+            className="md:hidden p-2 rounded-xl transition-colors"
+            style={{ color: "var(--brand)" }}
             onClick={() => setMenuOpen((v) => !v)}
             aria-label="Toggle menu"
           >
@@ -239,59 +425,104 @@ export default function Navbar() {
           </button>
         </div>
 
-        {/* Mobile Dropdown Menu */}
+        {/* Mobile Menu */}
         <AnimatePresence>
           {menuOpen && (
             <motion.div
-              initial={{ opacity: 0, y: -10 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -10 }}
-              transition={{ duration: 0.15 }}
-              className="md:hidden absolute top-16 left-0 right-0 border-b bg-white dark:bg-neutral-950 px-4 py-4 flex flex-col gap-1 shadow-xl"
+              initial={{ opacity: 0, height: 0 }}
+              animate={{ opacity: 1, height: "auto" }}
+              exit={{ opacity: 0, height: 0 }}
+              transition={{ duration: 0.2 }}
+              className="md:hidden overflow-hidden border-t"
               style={{ borderColor: "var(--border)" }}
             >
-              {NAV_LINKS.map((link) => {
-                const active = isActive(link.href);
-                return (
-                  <Link
-                    key={link.href}
-                    href={link.href}
-                    className="block px-4 py-2.5 rounded-xl text-sm font-medium transition-colors"
-                    style={{
-                      color: active ? "var(--primary)" : "var(--brand)",
-                      backgroundColor: active ? "var(--card)" : "transparent",
-                    }}
-                  >
-                    {link.label}
-                  </Link>
-                );
-              })}
+              <div className="py-3 flex flex-col gap-2">
+                {/* Mobile Search */}
+                <form onSubmit={handleSearch} className="px-4 mb-2">
+                  <div className="relative w-full">
+                    <Search size={16} className="absolute left-3 top-1/2 -translate-y-1/2" style={{ color: "var(--muted)" }} />
+                    <input
+                      type="text"
+                      placeholder="Search ebooks..."
+                      value={searchQuery}
+                      onChange={(e) => setSearchQuery(e.target.value)}
+                      className="w-full h-10 pl-9 pr-4 rounded-xl text-sm outline-none border"
+                      style={{ backgroundColor: "var(--card)", borderColor: "var(--border)", color: "var(--brand)" }}
+                    />
+                  </div>
+                </form>
 
-              <div className="h-px bg-neutral-200 dark:bg-neutral-800 my-2" />
+                {navLinks.map((link) => {
+                  const active = isActive(link.href);
+                  return (
+                    <Link
+                      key={link.href}
+                      href={link.href}
+                      className="block px-4 py-2.5 mx-2 rounded-xl text-sm font-medium"
+                      style={{
+                        color: active ? "var(--primary)" : "var(--brand)",
+                        backgroundColor: active ? "var(--card)" : "transparent",
+                      }}
+                    >
+                      {link.label}
+                    </Link>
+                  );
+                })}
 
-              <div className="flex flex-col gap-2">
+                <div className="h-px my-2 mx-4" style={{ backgroundColor: "var(--border)" }} />
+
                 {authLoading ? (
-                  <div className="h-10 rounded-xl animate-pulse bg-neutral-200 dark:bg-neutral-800" />
+                  <div
+                    className="h-10 rounded-xl animate-pulse mx-4"
+                    style={{ backgroundColor: "var(--card)" }}
+                  />
                 ) : user ? (
                   <>
-                    <Link
-                      href={dashboardPath}
-                      className="flex items-center gap-3 px-4 py-2.5 rounded-xl text-sm font-medium bg-neutral-50 dark:bg-neutral-900"
-                      style={{ color: "var(--brand)" }}
-                    >
-                      <AvatarCircle user={user} size={28} />
-                      <span className="truncate">{user.name}</span>
-                    </Link>
+                    <div className="flex items-center gap-3 px-4 py-2.5">
+                      <AvatarCircle user={user} size={40} />
+                      <div>
+                        <p className="text-sm font-semibold" style={{ color: "var(--brand)" }}>
+                          {user.name}
+                        </p>
+                        <p className="text-xs capitalize" style={{ color: "var(--primary)" }}>
+                          {user.role}
+                        </p>
+                      </div>
+                    </div>
+
+                    {user.role === "reader" && (
+                      <Link 
+                        href="/become-writer" 
+                        className="flex items-center gap-3 px-4 py-2.5 mx-2 rounded-xl text-sm font-semibold"
+                        style={{ color: "var(--primary)", backgroundColor: "var(--card)" }}
+                      >
+                        <PenTool size={15} />
+                        Become a Writer
+                      </Link>
+                    )}
+
+                    {(DROPDOWN_ITEMS[user?.role === "admin" ? "admin" : user?.role === "writer" ? "writer" : "reader"] || []).map(({ label, href, icon: Icon }) => (
+                      <Link
+                        key={href}
+                        href={href}
+                        className="flex items-center gap-3 px-4 py-2.5 mx-2 rounded-xl text-sm"
+                        style={{ color: "var(--brand)" }}
+                      >
+                        <Icon size={15} style={{ color: "var(--primary)" }} />
+                        {label}
+                      </Link>
+                    ))}
+
                     <button
                       onClick={handleLogout}
-                      className="flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-medium text-red-500 hover:bg-red-50 dark:hover:bg-red-950/20 transition-colors"
+                      className="flex items-center gap-3 px-4 py-2.5 mx-2 rounded-xl text-sm text-red-500 mt-1 hover:bg-red-50 dark:hover:bg-red-950/30 transition-colors"
                     >
-                      <LogOut size={16} />
+                      <LogOut size={15} />
                       Logout
                     </button>
                   </>
                 ) : (
-                  <>
+                  <div className="px-4 flex flex-col gap-2">
                     <Link
                       href="/login"
                       className="flex items-center justify-center h-10 rounded-xl text-sm font-medium border"
@@ -306,24 +537,18 @@ export default function Navbar() {
                     >
                       Register
                     </Link>
-                  </>
+                  </div>
                 )}
 
-                <button
-                  onClick={toggleTheme}
-                  className="flex items-center justify-center gap-2 h-10 rounded-xl border text-sm font-medium"
-                  style={{ borderColor: "var(--border)", color: "var(--brand)" }}
-                >
-                  {mounted && darkMode ? (
-                    <>
-                      <Sun size={16} /> Light Mode
-                    </>
-                  ) : (
-                    <>
-                      <Moon size={16} /> Dark Mode
-                    </>
-                  )}
-                </button>
+                <div className="px-4 mt-2">
+                  <button
+                    onClick={toggleTheme}
+                    className="flex items-center justify-center gap-2 h-10 w-full rounded-xl border text-sm font-medium"
+                    style={{ borderColor: "var(--border)", color: "var(--brand)" }}
+                  >
+                    {mounted && darkMode ? <><Sun size={16} /> Light Mode</> : <><Moon size={16} /> Dark Mode</>}
+                  </button>
+                </div>
               </div>
             </motion.div>
           )}

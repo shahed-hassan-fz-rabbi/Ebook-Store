@@ -6,11 +6,6 @@ const nextConfig = {
         protocol: "https",
         hostname: "placehold.co",
       },
-
-      {
-        protocol: "https",
-        hostname: "placehold.co",
-      },
       {
         protocol: "https",
         hostname: "i.ibb.co",
@@ -19,9 +14,12 @@ const nextConfig = {
         protocol: "https",
         hostname: "ibb.co",
       },
+      {
+        protocol: "https",
+        hostname: "lh3.googleusercontent.com",
+      },
     ],
   },
 };
 
 export default nextConfig;
-
