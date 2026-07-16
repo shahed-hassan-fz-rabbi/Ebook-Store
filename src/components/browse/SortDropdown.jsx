@@ -1,19 +1,24 @@
 "use client";
 
-export default function SortDropdown({ sort, setSort }) {
+export const sortOptions = [
+  { label: "Newest", value: "-createdAt" },
+  { label: "Price: Low to High", value: "price" },
+  { label: "Price: High to Low", value: "-price" },
+  { label: "Most Sold", value: "-totalSales" },
+];
+
+export default function SortDropdown({ value, onChange }) {
   return (
     <select
-      value={sort}
-      onChange={(e) => setSort(e.target.value)}
-      className="px-5 py-3 rounded-xl bg-white border outline-none text-sm"
-      style={{ borderColor: "var(--border)", color: "var(--brand)" }}
+      value={value}
+      onChange={(e) => onChange(e.target.value)}
+      className="h-12 rounded-xl border border-border bg-card px-4 text-sm font-medium text-text outline-none transition-all focus:border-primary focus:ring-2 focus:ring-primary/20"
     >
-      <option value="-createdAt">Newest First</option>
-      <option value="createdAt">Oldest First</option>
-      <option value="-averageRating">Highest Rated</option>
-      <option value="-totalSales">Most Popular</option>
-      <option value="price">Price Low → High</option>
-      <option value="-price">Price High → Low</option>
+      {sortOptions.map((o) => (
+        <option key={o.value} value={o.value}>
+          {o.label}
+        </option>
+      ))}
     </select>
   );
 }

@@ -11,8 +11,10 @@ import {
 import Link from "next/link";
 import { AuthContext } from "@/context/AuthContext";
 import axiosInstance from "@/lib/axios";
+export { default } from "@/app/dashboard/user/profile/page";
 
-// 🔄 Fully Responsive Skeleton
+
+
 const ProfileSkeleton = () => (
   <div className="w-full max-w-4xl mx-auto space-y-6 animate-pulse px-4 sm:px-0">
     <div className="rounded-3xl border bg-white dark:bg-neutral-900 border-neutral-100 dark:border-neutral-800 overflow-hidden">

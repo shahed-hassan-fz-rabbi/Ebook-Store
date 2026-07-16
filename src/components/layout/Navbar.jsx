@@ -6,18 +6,18 @@ import { usePathname, useRouter } from "next/navigation";
 import { useState, useEffect, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import {
-  Menu, X, User, LogIn, BookOpen, LogOut, Moon, Sun,
+  Menu, X, User, LogIn, LogOut, Moon, Sun,
   ChevronDown, LayoutDashboard, Bookmark, ShoppingBag,
   BookMarked, PlusCircle, BarChart2, Users, Settings,
   Shield, FileText, Search, Bell, PenTool
 } from "lucide-react";
 import { useAuth } from "@/context/AuthContext";
 
-// Role-based dropdown menu items
+
 const DROPDOWN_ITEMS = {
   reader: [
     { label: "Dashboard", href: "/dashboard/user", icon: LayoutDashboard },
-    { label: "My Library", href: "/dashboard/user/purchased-ebooks", icon: BookOpen },
+    { label: "My Library", href: "/dashboard/user/purchased-ebooks", icon: BookMarked },
     { label: "Bookmarks", href: "/dashboard/user/bookmarks", icon: Bookmark },
     { label: "Purchase History", href: "/dashboard/user/purchase-history", icon: ShoppingBag },
     { label: "Profile", href: "/dashboard/user/profile", icon: User },
@@ -39,19 +39,54 @@ const DROPDOWN_ITEMS = {
   ],
 };
 
-function Logo() {
+
+
+function BookMark({ hovered }) {
   return (
-    <Link href="/" className="flex items-center gap-2.5 group shrink-0">
+    <svg width="20" height="18" viewBox="0 0 20 18" fill="none">
+      <motion.path
+        d="M10 3.2C8.1 1.7 5.4 1 3 1.4C1.9 1.6 1 2.6 1 3.7v9.6c0 1 .9 1.7 1.9 1.5c2.2-.4 4.7.2 6.4 1.5"
+        stroke="white"
+        strokeWidth="1.4"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        animate={{ rotate: hovered ? -6 : 0, x: hovered ? -0.6 : 0 }}
+        transition={{ type: "spring", stiffness: 300, damping: 18 }}
+        style={{ transformOrigin: "10px 3px" }}
+      />
+      <motion.path
+        d="M10 3.2C11.9 1.7 14.6 1 17 1.4c1.1.2 2 1.2 2 2.3v9.6c0 1-.9 1.7-1.9 1.5c-2.2-.4-4.7.2-6.4 1.5"
+        stroke="white"
+        strokeWidth="1.4"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        animate={{ rotate: hovered ? 6 : 0, x: hovered ? 0.6 : 0 }}
+        transition={{ type: "spring", stiffness: 300, damping: 18 }}
+        style={{ transformOrigin: "10px 3px" }}
+      />
+      <line x1="10" y1="3.4" x2="10" y2="16.6" stroke="white" strokeWidth="1.2" strokeLinecap="round" opacity="0.85" />
+    </svg>
+  );
+}
+
+function Logo() {
+  const [hovered, setHovered] = useState(false);
+  return (
+    <Link
+      href="/"
+      className="flex items-center gap-2.5 group shrink-0"
+      onMouseEnter={() => setHovered(true)}
+      onMouseLeave={() => setHovered(false)}
+    >
       <motion.div
-        whileHover={{ scale: 1.05 }}
-        whileTap={{ scale: 0.95 }}
-        className="w-9 h-9 rounded-xl flex items-center justify-center shrink-0 shadow-sm"
+        whileTap={{ scale: 0.94 }}
+        className="w-9 h-9 rounded-lg flex items-center justify-center shrink-0"
         style={{ backgroundColor: "var(--primary)" }}
       >
-        <BookOpen size={18} color="white" strokeWidth={2.5} />
+        <BookMark hovered={hovered} />
       </motion.div>
       <span
-        className="text-xl font-bold tracking-tight whitespace-nowrap hidden sm:block"
+        className="text-[22px] italic tracking-tight whitespace-nowrap hidden sm:block font-[family-name:var(--font-serif)]"
         style={{ color: "var(--brand)" }}
       >
         Fable
@@ -74,11 +109,11 @@ function AvatarCircle({ user, size = 32 }) {
       }}
     >
       {user?.photo ? (
-        <Image 
-          src={user.photo} 
-          alt={user.name || "User Avatar"} 
+        <Image
+          src={user.photo}
+          alt={user.name || "User Avatar"}
           fill
-          className="object-cover" 
+          className="object-cover"
           sizes={`${size}px`}
         />
       ) : (
@@ -116,7 +151,7 @@ function UserDropdown({ user, onLogout }) {
     <div ref={ref} className="relative">
       <button
         onClick={() => setOpen((v) => !v)}
-        className="flex items-center gap-2 pl-2 pr-3 py-1.5 rounded-full text-sm font-medium border transition-all"
+        className="flex items-center gap-2 pl-2 pr-3 py-1.5 rounded-lg text-sm font-medium border transition-all"
         style={{
           borderColor: open ? "var(--primary)" : "var(--border)",
           color: "var(--brand)",
@@ -124,7 +159,6 @@ function UserDropdown({ user, onLogout }) {
         }}
       >
         <AvatarCircle user={user} size={28} />
-        {/* Fixed Name Truncation */}
         <span className="max-w-[90px] truncate hidden sm:block">
           {user?.name?.split(" ")[0]}
         </span>
@@ -141,28 +175,30 @@ function UserDropdown({ user, onLogout }) {
       <AnimatePresence>
         {open && (
           <motion.div
-            initial={{ opacity: 0, y: 6, scale: 0.97 }}
+            initial={{ opacity: 0, y: 6, scale: 0.98 }}
             animate={{ opacity: 1, y: 0, scale: 1 }}
-            exit={{ opacity: 0, y: 6, scale: 0.97 }}
+            exit={{ opacity: 0, y: 6, scale: 0.98 }}
             transition={{ duration: 0.15 }}
-            className="absolute right-0 top-full mt-2 w-56 rounded-2xl border shadow-xl overflow-hidden z-50"
+            className="absolute right-0 top-full mt-2 w-60 rounded-xl border shadow-xl overflow-hidden z-50"
             style={{
               backgroundColor: "var(--background)",
               borderColor: "var(--border)",
               boxShadow: "0 8px 30px rgba(0,0,0,0.1)",
             }}
           >
-            {/* Premium Header with 40px Avatar */}
             <div
-              className="px-4 py-3 border-b flex items-center gap-3"
+              className="px-4 py-3.5 border-b flex items-center gap-3"
               style={{ borderColor: "var(--border)", backgroundColor: "var(--card)" }}
             >
               <AvatarCircle user={user} size={40} />
               <div className="flex flex-col min-w-0">
-                <p className="text-sm font-semibold truncate" style={{ color: "var(--brand)" }}>
+                <p
+                  className="text-[15px] font-medium truncate italic font-[family-name:var(--font-serif)]"
+                  style={{ color: "var(--brand)" }}
+                >
                   {user.name}
                 </p>
-                <p className="text-xs truncate capitalize mt-0.5 font-medium" style={{ color: "var(--primary)" }}>
+                <p className="text-[11px] truncate uppercase mt-0.5 font-semibold tracking-wide" style={{ color: "var(--primary)" }}>
                   {roleKey}
                 </p>
               </div>
@@ -190,19 +226,12 @@ function UserDropdown({ user, onLogout }) {
               ))}
             </div>
 
-            <div
-              className="border-t py-1.5"
-              style={{ borderColor: "var(--border)" }}
-            >
+            <div className="border-t py-1.5" style={{ borderColor: "var(--border)" }}>
               <button
                 onClick={onLogout}
                 className="flex w-full items-center gap-3 px-4 py-2.5 text-sm text-red-500 transition-colors"
-                onMouseEnter={(e) =>
-                  (e.currentTarget.style.backgroundColor = "rgba(239,68,68,0.06)")
-                }
-                onMouseLeave={(e) =>
-                  (e.currentTarget.style.backgroundColor = "transparent")
-                }
+                onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = "rgba(239,68,68,0.06)")}
+                onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = "transparent")}
               >
                 <LogOut size={15} />
                 Logout
@@ -223,10 +252,10 @@ export default function Navbar() {
   const [mounted, setMounted] = useState(false);
   const [darkMode, setDarkMode] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
+  const [searchFocused, setSearchFocused] = useState(false);
 
   const { user, logout, loading: authLoading } = useAuth();
 
-  // 1. Dynamic Links Based on User
   const navLinks = [
     { label: "Home", href: "/" },
     { label: "Browse", href: "/browse" },
@@ -281,7 +310,7 @@ export default function Navbar() {
 
   const handleSearch = (e) => {
     e.preventDefault();
-    if(searchQuery.trim()) {
+    if (searchQuery.trim()) {
       router.push(`/browse?q=${encodeURIComponent(searchQuery)}`);
     }
   };
@@ -302,26 +331,29 @@ export default function Navbar() {
         <div className="flex items-center justify-between h-16 gap-3 lg:gap-6">
           <Logo />
 
-          {/* 2. Search Box (Desktop) */}
+         
           <form onSubmit={handleSearch} className="hidden lg:flex items-center relative flex-1 max-w-sm">
-            <Search size={16} className="absolute left-3" style={{ color: "var(--muted)" }} />
+            <Search
+              size={15}
+              className="absolute left-0.5"
+              style={{ color: searchFocused ? "var(--primary)" : "var(--muted)" }}
+            />
             <input
               type="text"
-              placeholder="Search ebooks, authors..."
+              placeholder="Search the shelf…"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full h-10 pl-9 pr-4 rounded-full text-sm outline-none transition-all border"
+              onFocus={() => setSearchFocused(true)}
+              onBlur={() => setSearchFocused(false)}
+              className="w-full h-9 pl-6 pr-2 text-sm outline-none transition-colors bg-transparent border-b"
               style={{
-                backgroundColor: "var(--card)",
-                borderColor: "var(--border)",
+                borderColor: searchFocused ? "var(--primary)" : "var(--border)",
                 color: "var(--brand)",
               }}
-              onFocus={(e) => e.target.style.borderColor = "var(--primary)"}
-              onBlur={(e) => e.target.style.borderColor = "var(--border)"}
             />
           </form>
 
-          {/* Desktop Nav Links */}
+         
           <nav className="hidden xl:flex items-center gap-1">
             {navLinks.map((link) => {
               const active = isActive(link.href);
@@ -335,8 +367,8 @@ export default function Navbar() {
                   {link.label}
                   {active && (
                     <motion.span
-                      layoutId="activeNavBar"
-                      className="absolute bottom-0 left-3 right-3 h-[2px] rounded-full"
+                      layoutId="activeBookmarkTab"
+                      className="absolute -top-[1px] left-1/2 -translate-x-1/2 w-3 h-1.5 rounded-b-sm"
                       style={{ backgroundColor: "var(--primary)" }}
                       transition={{ type: "spring", stiffness: 380, damping: 30 }}
                     />
@@ -348,35 +380,31 @@ export default function Navbar() {
 
           {/* Desktop Right */}
           <div className="hidden md:flex items-center gap-3 shrink-0">
-            
-            {/* 3. Become Writer Button (Visible only to readers) */}
             {user?.role === "reader" && (
-              <Link 
-                href="/become-writer" 
-                className="hidden lg:flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-bold transition-all hover:scale-105 border shadow-sm"
+              <Link
+                href="/become-writer"
+                className="hidden lg:flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all hover:opacity-80 border"
                 style={{ backgroundColor: "var(--card)", color: "var(--primary)", borderColor: "var(--border)" }}
               >
-                <PenTool size={14} />
-                Become Writer
+                <PenTool size={13} />
+                Become a Writer
               </Link>
             )}
 
-            {/* 4. Notification Bell */}
             <button
-              className="relative p-2 rounded-full transition-colors border shadow-sm"
+              className="relative p-2 rounded-lg transition-colors border"
               style={{ backgroundColor: "var(--card)", borderColor: "var(--border)", color: "var(--brand)" }}
               aria-label="Notifications"
             >
               <Bell size={16} />
-              {/* Optional unread indicator */}
-              <span className="absolute top-1 right-1 w-2 h-2 rounded-full" style={{ backgroundColor: "var(--primary)" }} />
+              <span className="absolute top-1.5 right-1.5 w-1.5 h-1.5 rounded-full" style={{ backgroundColor: "var(--primary)" }} />
             </button>
 
-            <div className="w-px h-5 mx-1" style={{ backgroundColor: "var(--border)" }} />
+            <div className="w-px h-5 mx-0.5" style={{ backgroundColor: "var(--border)" }} />
 
             <button
               onClick={toggleTheme}
-              className="p-2 rounded-full transition-colors border shadow-sm"
+              className="p-2 rounded-lg transition-colors border"
               style={{ backgroundColor: "var(--card)", borderColor: "var(--border)", color: "var(--brand)" }}
               aria-label="Toggle theme"
             >
@@ -384,28 +412,23 @@ export default function Navbar() {
             </button>
 
             {authLoading ? (
-              <div
-                className="w-24 h-9 rounded-full animate-pulse ml-2"
-                style={{ backgroundColor: "var(--card)" }}
-              />
+              <div className="w-24 h-9 rounded-lg animate-pulse ml-2" style={{ backgroundColor: "var(--card)" }} />
             ) : user ? (
               <div className="ml-2">
                 <UserDropdown user={user} onLogout={handleLogout} />
               </div>
             ) : (
-              <div className="flex items-center gap-2 ml-2">
+              <div className="flex items-center gap-4 ml-2">
                 <Link
                   href="/login"
-                  className="px-4 py-2 rounded-full text-sm font-medium transition-colors border"
-                  style={{ borderColor: "var(--border)", color: "var(--brand)" }}
-                  onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = "var(--card)")}
-                  onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = "transparent")}
+                  className="text-sm font-medium relative"
+                  style={{ color: "var(--brand)" }}
                 >
                   Login
                 </Link>
                 <Link
                   href="/register"
-                  className="px-4 py-2 rounded-full text-sm font-semibold text-white shadow-sm"
+                  className="px-4 py-2 rounded-lg text-sm font-semibold text-white shadow-sm hover:opacity-90 transition-opacity"
                   style={{ backgroundColor: "var(--primary)" }}
                 >
                   Register
@@ -414,9 +437,9 @@ export default function Navbar() {
             )}
           </div>
 
-          {/* Mobile Hamburger */}
+          
           <button
-            className="md:hidden p-2 rounded-xl transition-colors"
+            className="md:hidden p-2 rounded-lg transition-colors"
             style={{ color: "var(--brand)" }}
             onClick={() => setMenuOpen((v) => !v)}
             aria-label="Toggle menu"
@@ -437,17 +460,16 @@ export default function Navbar() {
               style={{ borderColor: "var(--border)" }}
             >
               <div className="py-3 flex flex-col gap-2">
-                {/* Mobile Search */}
                 <form onSubmit={handleSearch} className="px-4 mb-2">
-                  <div className="relative w-full">
-                    <Search size={16} className="absolute left-3 top-1/2 -translate-y-1/2" style={{ color: "var(--muted)" }} />
+                  <div className="relative w-full flex items-center">
+                    <Search size={15} className="absolute left-0.5" style={{ color: "var(--muted)" }} />
                     <input
                       type="text"
-                      placeholder="Search ebooks..."
+                      placeholder="Search the shelf…"
                       value={searchQuery}
                       onChange={(e) => setSearchQuery(e.target.value)}
-                      className="w-full h-10 pl-9 pr-4 rounded-xl text-sm outline-none border"
-                      style={{ backgroundColor: "var(--card)", borderColor: "var(--border)", color: "var(--brand)" }}
+                      className="w-full h-9 pl-6 pr-2 text-sm outline-none bg-transparent border-b"
+                      style={{ borderColor: "var(--border)", color: "var(--brand)" }}
                     />
                   </div>
                 </form>
@@ -458,12 +480,13 @@ export default function Navbar() {
                     <Link
                       key={link.href}
                       href={link.href}
-                      className="block px-4 py-2.5 mx-2 rounded-xl text-sm font-medium"
+                      className="flex items-center gap-2 px-4 py-2.5 mx-2 rounded-lg text-sm font-medium"
                       style={{
                         color: active ? "var(--primary)" : "var(--brand)",
                         backgroundColor: active ? "var(--card)" : "transparent",
                       }}
                     >
+                      {active && <span className="w-1 h-1 rounded-full" style={{ backgroundColor: "var(--primary)" }} />}
                       {link.label}
                     </Link>
                   );
@@ -472,28 +495,25 @@ export default function Navbar() {
                 <div className="h-px my-2 mx-4" style={{ backgroundColor: "var(--border)" }} />
 
                 {authLoading ? (
-                  <div
-                    className="h-10 rounded-xl animate-pulse mx-4"
-                    style={{ backgroundColor: "var(--card)" }}
-                  />
+                  <div className="h-10 rounded-lg animate-pulse mx-4" style={{ backgroundColor: "var(--card)" }} />
                 ) : user ? (
                   <>
                     <div className="flex items-center gap-3 px-4 py-2.5">
                       <AvatarCircle user={user} size={40} />
                       <div>
-                        <p className="text-sm font-semibold" style={{ color: "var(--brand)" }}>
+                        <p className="text-sm font-medium italic font-[family-name:var(--font-serif)]" style={{ color: "var(--brand)" }}>
                           {user.name}
                         </p>
-                        <p className="text-xs capitalize" style={{ color: "var(--primary)" }}>
+                        <p className="text-[11px] uppercase font-semibold tracking-wide" style={{ color: "var(--primary)" }}>
                           {user.role}
                         </p>
                       </div>
                     </div>
 
                     {user.role === "reader" && (
-                      <Link 
-                        href="/become-writer" 
-                        className="flex items-center gap-3 px-4 py-2.5 mx-2 rounded-xl text-sm font-semibold"
+                      <Link
+                        href="/become-writer"
+                        className="flex items-center gap-3 px-4 py-2.5 mx-2 rounded-lg text-sm font-semibold"
                         style={{ color: "var(--primary)", backgroundColor: "var(--card)" }}
                       >
                         <PenTool size={15} />
@@ -505,7 +525,7 @@ export default function Navbar() {
                       <Link
                         key={href}
                         href={href}
-                        className="flex items-center gap-3 px-4 py-2.5 mx-2 rounded-xl text-sm"
+                        className="flex items-center gap-3 px-4 py-2.5 mx-2 rounded-lg text-sm"
                         style={{ color: "var(--brand)" }}
                       >
                         <Icon size={15} style={{ color: "var(--primary)" }} />
@@ -515,7 +535,7 @@ export default function Navbar() {
 
                     <button
                       onClick={handleLogout}
-                      className="flex items-center gap-3 px-4 py-2.5 mx-2 rounded-xl text-sm text-red-500 mt-1 hover:bg-red-50 dark:hover:bg-red-950/30 transition-colors"
+                      className="flex items-center gap-3 px-4 py-2.5 mx-2 rounded-lg text-sm text-red-500 mt-1 hover:bg-red-50 dark:hover:bg-red-950/30 transition-colors"
                     >
                       <LogOut size={15} />
                       Logout
@@ -525,14 +545,14 @@ export default function Navbar() {
                   <div className="px-4 flex flex-col gap-2">
                     <Link
                       href="/login"
-                      className="flex items-center justify-center h-10 rounded-xl text-sm font-medium border"
+                      className="flex items-center justify-center h-10 rounded-lg text-sm font-medium border"
                       style={{ borderColor: "var(--border)", color: "var(--brand)" }}
                     >
                       Login
                     </Link>
                     <Link
                       href="/register"
-                      className="flex items-center justify-center h-10 rounded-xl text-sm font-semibold text-white"
+                      className="flex items-center justify-center h-10 rounded-lg text-sm font-semibold text-white"
                       style={{ backgroundColor: "var(--primary)" }}
                     >
                       Register
@@ -543,7 +563,7 @@ export default function Navbar() {
                 <div className="px-4 mt-2">
                   <button
                     onClick={toggleTheme}
-                    className="flex items-center justify-center gap-2 h-10 w-full rounded-xl border text-sm font-medium"
+                    className="flex items-center justify-center gap-2 h-10 w-full rounded-lg border text-sm font-medium"
                     style={{ borderColor: "var(--border)", color: "var(--brand)" }}
                   >
                     {mounted && darkMode ? <><Sun size={16} /> Light Mode</> : <><Moon size={16} /> Dark Mode</>}

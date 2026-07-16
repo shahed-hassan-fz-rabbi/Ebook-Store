@@ -1,6 +1,6 @@
 import axiosInstance from "@/lib/axios";
 
-export const addBookmark = async (ebookId) => {
+export const toggleBookmark = async (ebookId) => {
   const res = await axiosInstance.post("/bookmarks", {
     ebook: ebookId,
   });
@@ -10,16 +10,6 @@ export const addBookmark = async (ebookId) => {
 
 export const getBookmarks = async () => {
   const res = await axiosInstance.get("/bookmarks");
-
-  return res.data;
-};
-
-
-
-export const removeBookmark = async (id) => {
-  const res = await axiosInstance.delete(
-    `/bookmarks/${id}`
-  );
 
   return res.data;
 };

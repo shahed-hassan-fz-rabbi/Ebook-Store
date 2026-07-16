@@ -1,19 +1,22 @@
 "use client";
 
-import { useState, useContext } from "react";
-import { AuthContext } from "@/context/AuthContext";
+import { useState } from "react";
+import { toast } from "sonner";
 import { FcGoogle } from "react-icons/fc";
+import { Loader2 } from "lucide-react";
 
-export default function GoogleButton() {
+import { useAuth } from "@/context/AuthContext";
+
+export default function GoogleButton({ label = "Continue with Google" }) {
+  const { googleLogin } = useAuth();
   const [loading, setLoading] = useState(false);
-  const { googleLogin } = useContext(AuthContext);
 
-  const handleGoogleLogin = async () => {
+  const handleClick = async () => {
+    setLoading(true);
     try {
-      setLoading(true);
       await googleLogin();
     } catch (err) {
-      console.error(err);
+      toast.error("Google sign-in failed. Please try again.");
       setLoading(false);
     }
   };
@@ -21,17 +24,16 @@ export default function GoogleButton() {
   return (
     <button
       type="button"
-      onClick={handleGoogleLogin}
+      onClick={handleClick}
       disabled={loading}
-      className="w-full flex items-center justify-center gap-3 rounded-xl py-3.5 font-medium text-sm transition-all"
-      style={{
-        border: "1.5px solid var(--border)",
-        color: "var(--brand)",
-        background: "white",
-      }}
+      className="flex h-11 w-full items-center justify-center gap-3 rounded-xl border border-border bg-card text-sm font-medium text-text transition-colors hover:bg-card-alt disabled:opacity-60"
     >
-      <FcGoogle size={20} />
-      {loading ? "Redirecting..." : "Continue with Google"}
+      {loading ? (
+        <Loader2 className="h-4 w-4 animate-spin" />
+      ) : (
+        <FcGoogle className="h-5 w-5" />
+      )}
+      {label}
     </button>
   );
 }

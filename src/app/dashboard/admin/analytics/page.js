@@ -1,102 +1,80 @@
 "use client";
 
-import { useEffect, useState } from "react";
-
+import { useQuery } from "@tanstack/react-query";
 import {
-  Users,
-  BookOpen,
-  DollarSign,
-  ShoppingBag,
-} from "lucide-react";
+  BarChart,
+  Bar,
+  XAxis,
+  YAxis,
+  Tooltip,
+  ResponsiveContainer,
+  CartesianGrid,
+} from "recharts";
 
-import { getAnalytics } from "@/services/admin.service";
+import { getMonthlySales, getEbooksByGenre } from "@/services/admin.service";
 
 export default function AnalyticsPage() {
-  const [stats, setStats] = useState(null);
+  const { data: salesData } = useQuery({
+    queryKey: ["admin-monthly-sales"],
+    queryFn: getMonthlySales,
+  });
 
-  useEffect(() => {
-    loadAnalytics();
-  }, []);
+  const { data: genreData } = useQuery({
+    queryKey: ["admin-genre"],
+    queryFn: getEbooksByGenre,
+  });
 
-  const loadAnalytics = async () => {
-    const res = await getAnalytics();
-
-    setStats(res.data);
-  };
-
-  if (!stats)
-    return <h2>Loading...</h2>;
-
-  const cards = [
-    {
-      title: "Total Users",
-      value: stats.totalUsers,
-      icon: Users,
-      color: "bg-blue-500",
-    },
-    {
-      title: "Total Writers",
-      value: stats.totalWriters,
-      icon: Users,
-      color: "bg-green-500",
-    },
-    {
-      title: "Total Books",
-      value: stats.totalBooks,
-      icon: BookOpen,
-      color: "bg-orange-500",
-    },
-    {
-      title: "Sales",
-      value: stats.totalSales,
-      icon: ShoppingBag,
-      color: "bg-purple-500",
-    },
-    {
-      title: "Revenue",
-      value: `$${stats.totalRevenue}`,
-      icon: DollarSign,
-      color: "bg-pink-500",
-    },
-  ];
+  const monthly = Array.isArray(salesData?.data) ? salesData.data : [];
+  const byGenre = Array.isArray(genreData?.data) ? genreData.data : [];
 
   return (
     <div>
-
-      <h1 className="text-3xl font-bold mb-8">
-        Analytics
-      </h1>
-
-      <div className="grid md:grid-cols-3 lg:grid-cols-5 gap-6">
-
-        {cards.map((card) => {
-          const Icon = card.icon;
-
-          return (
-            <div
-              key={card.title}
-              className="bg-white rounded-xl shadow p-6"
-            >
-              <div
-                className={`${card.color} w-12 h-12 rounded-lg flex items-center justify-center text-white`}
-              >
-                <Icon />
-              </div>
-
-              <h3 className="mt-5 text-gray-500">
-                {card.title}
-              </h3>
-
-              <h2 className="text-3xl font-bold mt-2">
-                {card.value}
-              </h2>
-
-            </div>
-          );
-        })}
-
+      <div className="mb-8">
+        <h1 className="text-3xl font-bold tracking-tight text-text">
+          Analytics
+        </h1>
+        <p className="mt-2 text-muted">Revenue and catalog insights.</p>
       </div>
 
+      <div className="space-y-6">
+        <div className="rounded-2xl border border-border bg-card p-6">
+          <h2 className="mb-6 text-lg font-semibold text-text">
+            Revenue by Month
+          </h2>
+          {monthly.length === 0 ? (
+            <p className="py-16 text-center text-sm text-muted">No data yet.</p>
+          ) : (
+            <ResponsiveContainer width="100%" height={300}>
+              <BarChart data={monthly}>
+                <CartesianGrid strokeDasharray="3 3" stroke="#f3e8e2" />
+                <XAxis dataKey="month" fontSize={12} stroke="#6b7280" />
+                <YAxis fontSize={12} stroke="#6b7280" />
+                <Tooltip />
+                <Bar dataKey="revenue" fill="#f97316" radius={[6, 6, 0, 0]} />
+              </BarChart>
+            </ResponsiveContainer>
+          )}
+        </div>
+
+        <div className="rounded-2xl border border-border bg-card p-6">
+          <h2 className="mb-6 text-lg font-semibold text-text">
+            Ebooks per Genre
+          </h2>
+          {byGenre.length === 0 ? (
+            <p className="py-16 text-center text-sm text-muted">No data yet.</p>
+          ) : (
+            <ResponsiveContainer width="100%" height={300}>
+              <BarChart data={byGenre}>
+                <CartesianGrid strokeDasharray="3 3" stroke="#f3e8e2" />
+                <XAxis dataKey="genre" fontSize={12} stroke="#6b7280" />
+                <YAxis fontSize={12} stroke="#6b7280" />
+                <Tooltip />
+                <Bar dataKey="count" fill="#2563eb" radius={[6, 6, 0, 0]} />
+              </BarChart>
+            </ResponsiveContainer>
+          )}
+        </div>
+      </div>
     </div>
   );
 }

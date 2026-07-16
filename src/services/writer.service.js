@@ -1,11 +1,13 @@
 import axiosInstance from "@/lib/axios";
 
-export const getWriterDashboard =
-  async () => {
-    const res =
-      await axiosInstance.get(
-        "/writer/dashboard"
-      );
+// Top writers by actual sales (assignment: "3 writers with most sales")
+export const getTopWriters = async () => {
+  const res = await axiosInstance.get("/purchases/top-writers");
+  return res.data;
+};
 
-    return res.data;
-  };
+// Writer dashboard stats (used later in writer dashboard)
+export const getWriterDashboard = async () => {
+  const res = await axiosInstance.get("/writer/dashboard");
+  return res.data;
+};

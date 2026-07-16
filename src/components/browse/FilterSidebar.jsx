@@ -1,116 +1,89 @@
 "use client";
 
-import { GENRES } from "@/constants/genres";
+import { SlidersHorizontal, X } from "lucide-react";
+
+import { genres } from "@/config/genres";
+import Button from "@/components/ui/Button";
 
 export default function FilterSidebar({
-  selectedGenre,
-  setSelectedGenre,
-  price,
-  setPrice,
-  clearFilters,
+  genre,
+  setGenre,
+  minPrice,
+  setMinPrice,
+  maxPrice,
+  setMaxPrice,
+  onReset,
 }) {
-  return (
-    <aside
-      className="rounded-3xl border p-6 h-fit sticky top-24"
-      style={{
-        background: "var(--white)",
-        borderColor: "var(--border)",
-      }}
-    >
-      <h2
-        className="text-xl font-bold mb-6"
-        style={{ color: "var(--brand)" }}
-      >
-        Filters
-      </h2>
+  const hasFilters = genre || minPrice || maxPrice;
 
-      {/* Genre */}
+  return (
+    <aside className="w-full rounded-2xl border border-border bg-card p-6">
+      <div className="mb-6 flex items-center justify-between">
+        <h3 className="flex items-center gap-2 text-base font-semibold text-text">
+          <SlidersHorizontal className="h-4 w-4 text-primary" />
+          Filters
+        </h3>
+        {hasFilters && (
+          <button
+            onClick={onReset}
+            className="flex items-center gap-1 text-xs font-medium text-muted hover:text-danger"
+          >
+            <X className="h-3 w-3" /> Clear
+          </button>
+        )}
+      </div>
 
       <div className="mb-8">
-        <h3
-          className="font-semibold mb-4"
-          style={{ color: "var(--brand)" }}
-        >
-          Genre
-        </h3>
-
-        <div className="flex flex-wrap gap-2">
+        <p className="mb-3 text-sm font-medium text-text">Genre</p>
+        <div className="space-y-1">
           <button
-            onClick={() => setSelectedGenre("All")}
-            className="px-4 py-2 rounded-full text-sm"
-            style={{
-              background:
-                selectedGenre === "All"
-                  ? "var(--primary)"
-                  : "var(--card)",
-              color:
-                selectedGenre === "All"
-                  ? "white"
-                  : "var(--brand)",
-            }}
+            onClick={() => setGenre("")}
+            className={`w-full rounded-lg px-3 py-2 text-left text-sm transition-colors ${
+              !genre
+                ? "bg-primary/10 font-medium text-primary"
+                : "text-muted hover:bg-card-alt hover:text-text"
+            }`}
           >
-            All
+            All Genres
           </button>
-
-          {GENRES.map((genre) => (
+          {genres.map((g) => (
             <button
-              key={genre.id}
-              onClick={() => setSelectedGenre(genre.name)}
-              className="px-4 py-2 rounded-full text-sm"
-              style={{
-                background:
-                  selectedGenre === genre.name
-                    ? "var(--primary)"
-                    : "var(--card)",
-                color:
-                  selectedGenre === genre.name
-                    ? "white"
-                    : "var(--brand)",
-              }}
+              key={g.slug}
+              onClick={() => setGenre(g.slug)}
+              className={`w-full rounded-lg px-3 py-2 text-left text-sm transition-colors ${
+                genre === g.slug
+                  ? "bg-primary/10 font-medium text-primary"
+                  : "text-muted hover:bg-card-alt hover:text-text"
+              }`}
             >
-              {genre.name}
+              {g.name}
             </button>
           ))}
         </div>
       </div>
 
-      {/* Price */}
-
-      <div className="mb-8">
-        <h3
-          className="font-semibold mb-4"
-          style={{ color: "var(--brand)" }}
-        >
-          Maximum Price
-        </h3>
-
-        <input
-          type="range"
-          min="0"
-          max="100"
-          value={price}
-          onChange={(e) => setPrice(Number(e.target.value))}
-          className="w-full"
-        />
-
-        <p
-          className="mt-3 text-sm"
-          style={{ color: "var(--muted)" }}
-        >
-          Up to ${price}
-        </p>
+      <div>
+        <p className="mb-3 text-sm font-medium text-text">Price Range</p>
+        <div className="flex items-center gap-2">
+          <input
+            type="number"
+            min="0"
+            value={minPrice}
+            onChange={(e) => setMinPrice(e.target.value)}
+            placeholder="Min"
+            className="h-10 w-full rounded-lg border border-border bg-background px-3 text-sm text-text outline-none focus:border-primary"
+          />
+          <span className="text-muted">–</span>
+          <input
+            type="number"
+            min="0"
+            value={maxPrice}
+            onChange={(e) => setMaxPrice(e.target.value)}
+            placeholder="Max"
+            className="h-10 w-full rounded-lg border border-border bg-background px-3 text-sm text-text outline-none focus:border-primary"
+          />
+        </div>
       </div>
-
-      <button
-        onClick={clearFilters}
-        className="w-full py-3 rounded-xl font-semibold"
-        style={{
-          background: "var(--primary)",
-          color: "white",
-        }}
-      >
-        Clear Filters
-      </button>
     </aside>
   );
 }

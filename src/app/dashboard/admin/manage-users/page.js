@@ -1,8 +1,8 @@
 "use client";
 
-import { useEffect, useState } from "react";
-
-import toast from "react-hot-toast";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { toast } from "sonner";
+import { Users } from "lucide-react";
 
 import {
   getAllUsers,
@@ -10,156 +10,131 @@ import {
   unblockUser,
   changeRole,
 } from "@/services/user.service";
+import { useAuth } from "@/context/AuthContext";
+import DataTable from "@/components/dashboard/DataTable";
+import EmptyState from "@/components/ui/EmptyState";
+import Button from "@/components/ui/Button";
+import Badge from "@/components/ui/Badge";
 
-export default function ManageUsers() {
-  const [users, setUsers] = useState([]);
+export default function ManageUsersPage() {
+  const { user: me } = useAuth();
+  const queryClient = useQueryClient();
 
-  const loadUsers = async () => {
-    const res = await getAllUsers();
+  const { data, isLoading } = useQuery({
+    queryKey: ["admin-users"],
+    queryFn: getAllUsers,
+  });
 
-    setUsers(res.data);
-  };
+  const invalidate = () =>
+    queryClient.invalidateQueries({ queryKey: ["admin-users"] });
 
-  useEffect(() => {
-    loadUsers();
-  }, []);
+  const { mutate: block } = useMutation({
+    mutationFn: (id) => blockUser(id),
+    onSuccess: () => {
+      invalidate();
+      toast.success("User blocked");
+    },
+    onError: () => toast.error("Action failed."),
+  });
 
-  const handleBlock = async (id) => {
-    await blockUser(id);
+  const { mutate: unblock } = useMutation({
+    mutationFn: (id) => unblockUser(id),
+    onSuccess: () => {
+      invalidate();
+      toast.success("User unblocked");
+    },
+    onError: () => toast.error("Action failed."),
+  });
 
-    toast.success("Blocked");
+  const { mutate: updateRole } = useMutation({
+    mutationFn: ({ id, role }) => changeRole(id, role),
+    onSuccess: () => {
+      invalidate();
+      toast.success("Role updated");
+    },
+    onError: () => toast.error("Action failed."),
+  });
 
-    loadUsers();
-  };
+  const rows = (Array.isArray(data?.data) ? data.data : []).map((u) => ({
+    id: u._id,
+    name: u.name,
+    email: u.email,
+    role: u.role,
+    isBlocked: u.isBlocked,
+  }));
 
-  const handleUnblock = async (id) => {
-    await unblockUser(id);
-
-    toast.success("Unblocked");
-
-    loadUsers();
-  };
-
-  const handleRole = async (
-    id,
-    role
-  ) => {
-    await changeRole(id, role);
-
-    toast.success("Role Updated");
-
-    loadUsers();
-  };
+  const columns = [
+    {
+      key: "name",
+      label: "User",
+      render: (r) => (
+        <div>
+          <p className="font-semibold text-text">{r.name}</p>
+          <p className="text-xs text-muted">{r.email}</p>
+        </div>
+      ),
+    },
+    {
+      key: "role",
+      label: "Role",
+      render: (r) => (
+        <select
+          value={r.role}
+          disabled={r.id === me?._id}
+          onChange={(e) => updateRole({ id: r.id, role: e.target.value })}
+          className="h-9 rounded-lg border border-border bg-background px-2 text-sm capitalize text-text outline-none focus:border-primary disabled:opacity-50"
+        >
+          <option value="reader">reader</option>
+          <option value="writer">writer</option>
+          <option value="admin">admin</option>
+        </select>
+      ),
+    },
+    {
+      key: "isBlocked",
+      label: "Status",
+      render: (r) =>
+        r.isBlocked ? (
+          <Badge tone="danger">Blocked</Badge>
+        ) : (
+          <Badge tone="success">Active</Badge>
+        ),
+    },
+    {
+      key: "actions",
+      label: "Actions",
+      render: (r) =>
+        r.id === me?._id ? (
+          <span className="text-xs text-muted">You</span>
+        ) : r.isBlocked ? (
+          <Button size="sm" variant="outline" onClick={() => unblock(r.id)}>
+            Unblock
+          </Button>
+        ) : (
+          <Button size="sm" variant="danger" onClick={() => block(r.id)}>
+            Block
+          </Button>
+        ),
+    },
+  ];
 
   return (
-    <div className="bg-white rounded-xl p-8 shadow">
+    <div>
+      <div className="mb-8">
+        <h1 className="text-3xl font-bold tracking-tight text-text">
+          Manage Users
+        </h1>
+        <p className="mt-2 text-muted">{rows.length} registered users.</p>
+      </div>
 
-      <h1 className="text-3xl font-bold mb-8">
-        Manage Users
-      </h1>
-
-      <table className="table">
-
-        <thead>
-
-          <tr>
-
-            <th>Name</th>
-
-            <th>Email</th>
-
-            <th>Role</th>
-
-            <th>Status</th>
-
-            <th>Action</th>
-
-          </tr>
-
-        </thead>
-
-        <tbody>
-
-          {users.map((user) => (
-
-            <tr key={user._id}>
-
-              <td>{user.name}</td>
-
-              <td>{user.email}</td>
-
-              <td>
-
-                <select
-                  value={user.role}
-                  onChange={(e) =>
-                    handleRole(
-                      user._id,
-                      e.target.value
-                    )
-                  }
-                >
-
-                  <option value="reader">
-                    Reader
-                  </option>
-
-                  <option value="writer">
-                    Writer
-                  </option>
-
-                  <option value="admin">
-                    Admin
-                  </option>
-
-                </select>
-
-              </td>
-
-              <td>
-
-                {user.isBlocked
-                  ? "Blocked"
-                  : "Active"}
-
-              </td>
-
-              <td>
-
-                {user.isBlocked ? (
-                  <button
-                    onClick={() =>
-                      handleUnblock(
-                        user._id
-                      )
-                    }
-                    className="btn btn-success btn-sm"
-                  >
-                    Unblock
-                  </button>
-                ) : (
-                  <button
-                    onClick={() =>
-                      handleBlock(
-                        user._id
-                      )
-                    }
-                    className="btn btn-error btn-sm"
-                  >
-                    Block
-                  </button>
-                )}
-
-              </td>
-
-            </tr>
-
-          ))}
-
-        </tbody>
-
-      </table>
-
+      <DataTable
+        columns={columns}
+        rows={rows}
+        isLoading={isLoading}
+        empty={
+          <EmptyState icon={Users} title="No users found" />
+        }
+      />
     </div>
   );
 }

@@ -1,16 +1,15 @@
 "use client";
 
-import { useContext, useEffect } from "react";
+import { useEffect } from "react";
 import { useRouter } from "next/navigation";
-import { AuthContext } from "@/context/AuthContext";
 
-export default function ProtectedRoute({
-  children,
-  roles = [],
-}) {
+import { useAuth } from "@/context/AuthContext";
+import Spinner from "@/components/ui/Spinner";
+import { roleToPath } from "@/config/dashboard-nav";
+
+export default function ProtectedRoute({ children, allowedRoles }) {
+  const { user, loading } = useAuth();
   const router = useRouter();
-
-  const { user, loading } = useContext(AuthContext);
 
   useEffect(() => {
     if (loading) return;
@@ -20,29 +19,25 @@ export default function ProtectedRoute({
       return;
     }
 
-    if (
-      roles.length &&
-      !roles.includes(user.role)
-    ) {
-      router.replace("/");
+    if (allowedRoles && !allowedRoles.includes(user.role)) {
+      router.replace(roleToPath[user.role] || "/");
     }
-  }, [user, loading, router, roles]);
+  }, [user, loading, allowedRoles, router]);
 
-  if (loading) {
+  if (loading || !user) {
     return (
-      <div className="min-h-screen flex justify-center items-center">
-        Loading...
+      <div className="flex min-h-screen items-center justify-center">
+        <Spinner size={32} />
       </div>
     );
   }
 
-  if (!user) return null;
-
-  if (
-    roles.length &&
-    !roles.includes(user.role)
-  ) {
-    return null;
+  if (allowedRoles && !allowedRoles.includes(user.role)) {
+    return (
+      <div className="flex min-h-screen items-center justify-center">
+        <Spinner size={32} />
+      </div>
+    );
   }
 
   return children;

@@ -1,16 +1,15 @@
-import { Loader2 } from "lucide-react";
+import { BookOpen } from "lucide-react";
 
 export default function Loading() {
   return (
-    <div className="fixed inset-0 z-50 flex flex-col items-center justify-center bg-neutral-50 dark:bg-neutral-950 backdrop-blur-sm">
-      <div className="flex flex-col items-center space-y-4">
-        <div className="relative flex items-center justify-center">
-          <div className="absolute inset-0 bg-indigo-500/20 rounded-full blur-xl animate-pulse" />
-          <Loader2 size={48} className="animate-spin text-indigo-600 dark:text-indigo-500 relative z-10" />
+    <div className="flex min-h-screen items-center justify-center bg-background">
+      <div className="flex flex-col items-center gap-4">
+        <span className="flex h-14 w-14 animate-pulse items-center justify-center rounded-2xl bg-primary text-white">
+          <BookOpen className="h-7 w-7" />
+        </span>
+        <div className="h-1.5 w-32 overflow-hidden rounded-full bg-card-alt">
+          <div className="h-full w-1/2 animate-[loading_1s_ease-in-out_infinite] rounded-full bg-primary" />
         </div>
-        <h2 className="text-xs font-bold text-neutral-500 dark:text-neutral-400 uppercase tracking-[0.2em] animate-pulse">
-          Loading Fable...
-        </h2>
       </div>
     </div>
   );

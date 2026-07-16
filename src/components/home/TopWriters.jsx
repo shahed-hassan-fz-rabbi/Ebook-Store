@@ -1,146 +1,108 @@
 "use client";
 
-import { useState, useEffect } from "react";
-import Image from "next/image";
+import { useQuery } from "@tanstack/react-query";
 import { motion } from "framer-motion";
-import { Trophy } from "lucide-react";
-import axiosInstance from "@/lib/axios";
+import { Award, User, Crown } from "lucide-react";
+
+import { getTopWriters } from "@/services/writer.service";
+import { normalizeWriter, unwrapList } from "@/lib/normalize";
+import Skeleton from "@/components/ui/Skeleton";
+import EmptyState from "@/components/ui/EmptyState";
+
+const medal = ["#f59e0b", "#94a3b8", "#b45309"];
 
 export default function TopWriters() {
-  const [writers, setWriters] = useState([]);
-  const [loading, setLoading] = useState(true);
+  const { data, isLoading } = useQuery({
+    queryKey: ["top-writers"],
+    queryFn: getTopWriters,
+  });
 
-  useEffect(() => {
-    const fetchTopWriters = async () => {
-      try {
-        setLoading(true);
-        const res = await axiosInstance.get("/purchases/top-writers");
-        setWriters(res.data?.data || []);
-      } catch (error) {
-        console.error(error);
-        setWriters([]);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchTopWriters();
-  }, []);
-
-  const SkeletonCard = () => (
-    <div
-      className="rounded-3xl overflow-hidden border animate-pulse"
-      style={{
-        background: "var(--card)",
-        borderColor: "var(--border)",
-      }}
-    >
-      <div className="h-72 w-full" style={{ backgroundColor: "var(--border)", opacity: 0.5 }} />
-      <div className="p-6">
-        <div className="h-6 w-3/4 rounded mb-5" style={{ backgroundColor: "var(--border)", opacity: 0.5 }} />
-        <div className="mt-5 grid grid-cols-3 gap-3">
-          <div className="h-16 rounded-xl" style={{ backgroundColor: "var(--border)", opacity: 0.5 }} />
-          <div className="h-16 rounded-xl" style={{ backgroundColor: "var(--border)", opacity: 0.5 }} />
-          <div className="h-16 rounded-xl" style={{ backgroundColor: "var(--border)", opacity: 0.5 }} />
-        </div>
-      </div>
-    </div>
-  );
+  const raw = data?.data;
+  const list = Array.isArray(raw) ? raw : unwrapList(data).items;
+  const writers = list.map(normalizeWriter).slice(0, 3);
 
   return (
-    <section className="section-padding">
-      <div className="container">
-        <div className="text-center mb-12">
-          <h2
-            className="text-4xl font-bold"
-            style={{ color: "var(--brand)" }}
-          >
+    <section id="top-writers" className="bg-card-alt/40">
+      <div className="mx-auto max-w-7xl px-4 py-20 sm:px-6 lg:px-8">
+        <div className="mb-12 text-center">
+          <div className="mx-auto mb-4 inline-flex items-center gap-2 rounded-full bg-primary/10 px-4 py-1.5 text-[13px] font-semibold text-primary">
+            <Award className="h-3.5 w-3.5" /> Leaderboard
+          </div>
+          <h2 className="text-3xl font-bold tracking-tight text-text sm:text-4xl">
             Top Writers
           </h2>
-
-          <p
-            className="mt-4 max-w-2xl mx-auto"
-            style={{ color: "var(--muted)" }}
-          >
-            Meet the talented authors creating amazing ebooks for thousands of readers.
+          <p className="mx-auto mt-3 max-w-md text-[17px] text-muted">
+            The authors readers keep coming back to.
           </p>
         </div>
 
-        <div className="grid md:grid-cols-3 gap-8">
-          {loading ? (
-            <>
-              <SkeletonCard />
-              <SkeletonCard />
-              <SkeletonCard />
-            </>
-          ) : writers.length === 0 ? (
-            <div className="col-span-3 text-center py-12">
-              <div className="w-16 h-16 rounded-full mx-auto flex items-center justify-center mb-4 border" style={{ backgroundColor: "var(--card)", borderColor: "var(--border)" }}>
-                <Trophy size={24} style={{ color: "var(--muted)" }} />
-              </div>
-              <h3 className="text-lg font-bold" style={{ color: "var(--brand)" }}>No Top Writers Yet</h3>
-              <p className="text-sm mt-1" style={{ color: "var(--muted)" }}>Sales data is currently being updated.</p>
-            </div>
-          ) : (
-            writers.map((writer, index) => (
+        {isLoading ? (
+          <div className="grid gap-6 md:grid-cols-3">
+            {Array.from({ length: 3 }).map((_, i) => (
+              <Skeleton key={i} className="h-56 w-full rounded-2xl" />
+            ))}
+          </div>
+        ) : writers.length === 0 ? (
+          <EmptyState
+            icon={Award}
+            title="No sales yet"
+            description="Once readers start buying, top writers will appear here."
+          />
+        ) : (
+          <div className="grid gap-6 md:grid-cols-3">
+            {writers.map((w, i) => (
               <motion.div
-                key={writer._id}
-                initial={{ opacity: 0, y: 40 }}
+                key={w.id || i}
+                initial={{ opacity: 0, y: 24 }}
                 whileInView={{ opacity: 1, y: 0 }}
-                transition={{
-                  duration: 0.5,
-                  delay: index * 0.15,
-                }}
                 viewport={{ once: true }}
-                className="rounded-3xl overflow-hidden border group"
-                style={{
-                  background: "var(--card)",
-                  borderColor: "var(--border)",
-                }}
+                transition={{ duration: 0.45, delay: i * 0.1 }}
+                className="relative overflow-hidden rounded-2xl border border-border bg-card p-8 text-center transition-all hover:-translate-y-1 hover:shadow-[0_20px_50px_-25px_var(--shadow)]"
               >
-                <div className="relative h-72 overflow-hidden bg-neutral-100 dark:bg-neutral-800 flex items-center justify-center">
-                  <Image
-                    src={writer.photo || "/images/placeholders/writer.jpg"}
-                    alt={writer.name}
-                    fill
-                    className="object-cover group-hover:scale-105 transition-transform duration-500"
-                    sizes="(max-width: 768px) 100vw, 33vw"
+                {i === 0 && (
+                  <Crown
+                    className="absolute left-1/2 top-4 h-5 w-5 -translate-x-1/2"
+                    style={{ color: medal[0] }}
                   />
-                  
-                  <div className="absolute top-4 left-4 w-8 h-8 rounded-full flex items-center justify-center shadow-md font-bold text-sm" style={{ backgroundColor: "var(--primary)", color: "white" }}>
-                    #{index + 1}
-                  </div>
+                )}
+
+                <span
+                  className="absolute left-5 top-5 flex h-8 w-8 items-center justify-center rounded-full text-[13px] font-bold text-white"
+                  style={{ backgroundColor: medal[i] }}
+                >
+                  {i + 1}
+                </span>
+
+                <div className="mx-auto mt-4 mb-5 flex h-24 w-24 items-center justify-center overflow-hidden rounded-full border-4 bg-card-alt"
+                  style={{ borderColor: `${medal[i]}40` }}
+                >
+                  {w.photo ? (
+                    // eslint-disable-next-line @next/next/no-img-element
+                    <img src={w.photo} alt={w.name} className="h-full w-full object-cover" />
+                  ) : (
+                    <User className="h-9 w-9 text-muted" />
+                  )}
                 </div>
 
-                <div className="p-6">
-                  <h3
-                    className="text-xl font-bold truncate"
-                    style={{ color: "var(--brand)" }}
-                  >
-                    {writer.name}
-                  </h3>
+                <h3 className="text-lg font-semibold text-text">{w.name}</h3>
 
-                  <div className="mt-5 grid grid-cols-3 gap-3">
-                    <div className="rounded-xl p-3 text-center bg-orange-50 dark:bg-orange-500/10 text-orange-600 dark:text-orange-400 border border-orange-100 dark:border-orange-500/20">
-                      <p className="text-lg font-black">{writer.totalBooks || 0}</p>
-                      <p className="text-[10px] uppercase tracking-wider font-bold mt-0.5">Books</p>
-                    </div>
-
-                    <div className="rounded-xl p-3 text-center bg-blue-50 dark:bg-blue-500/10 text-blue-600 dark:text-blue-400 border border-blue-100 dark:border-blue-500/20">
-                      <p className="text-lg font-black">{writer.totalSales || 0}</p>
-                      <p className="text-[10px] uppercase tracking-wider font-bold mt-0.5">Sales</p>
-                    </div>
-
-                    <div className="rounded-xl p-3 text-center bg-emerald-50 dark:bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-100 dark:border-emerald-500/20">
-                      <p className="text-lg font-black">${writer.totalRevenue || 0}</p>
-                      <p className="text-[10px] uppercase tracking-wider font-bold mt-0.5">Revenue</p>
-                    </div>
+                <div className="mt-4 flex items-center justify-center gap-6 border-t border-border pt-4">
+                  <div>
+                    <p className="text-xl font-bold text-text">{w.totalSales}</p>
+                    <p className="text-xs text-muted">Sales</p>
+                  </div>
+                  <div className="h-8 w-px bg-border" />
+                  <div>
+                    <p className="text-xl font-bold text-text">
+                      ${Number(w.totalRevenue).toFixed(0)}
+                    </p>
+                    <p className="text-xs text-muted">Revenue</p>
                   </div>
                 </div>
               </motion.div>
-            ))
-          )}
-        </div>
+            ))}
+          </div>
+        )}
       </div>
     </section>
   );

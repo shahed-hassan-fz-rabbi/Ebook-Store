@@ -1,60 +1,43 @@
 "use client";
 
-import { motion } from "framer-motion";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 
-export default function Pagination({ currentPage, totalPages, onPageChange }) {
-  if (totalPages <= 1) return null;
+export default function Pagination({ page, totalPage, onChange }) {
+  if (!totalPage || totalPage <= 1) return null;
+
+  const pages = Array.from({ length: totalPage }, (_, i) => i + 1);
 
   return (
-    <div className="flex items-center justify-center gap-2 mt-12">
-      <motion.button
-        whileTap={{ scale: 0.95 }}
-        onClick={() => onPageChange(currentPage - 1)}
-        disabled={currentPage === 1}
-        className="w-10 h-10 rounded-xl flex items-center justify-center transition-all"
-        style={{
-          backgroundColor: "var(--card)",
-          border: "1px solid var(--border)",
-          color: currentPage === 1 ? "var(--muted)" : "var(--brand)",
-          opacity: currentPage === 1 ? 0.5 : 1,
-          cursor: currentPage === 1 ? "not-allowed" : "pointer",
-        }}
+    <div className="mt-12 flex items-center justify-center gap-2">
+      <button
+        onClick={() => onChange(page - 1)}
+        disabled={page <= 1}
+        className="flex h-10 w-10 items-center justify-center rounded-lg border border-border bg-card text-muted transition-colors hover:border-primary hover:text-primary disabled:cursor-not-allowed disabled:opacity-40"
       >
-        <ChevronLeft size={18} />
-      </motion.button>
+        <ChevronLeft className="h-4 w-4" />
+      </button>
 
-      {Array.from({ length: totalPages }, (_, i) => i + 1).map((p) => (
-        <motion.button
+      {pages.map((p) => (
+        <button
           key={p}
-          whileTap={{ scale: 0.95 }}
-          onClick={() => onPageChange(p)}
-          className="w-10 h-10 rounded-xl text-sm font-medium transition-all"
-          style={{
-            backgroundColor: currentPage === p ? "var(--primary)" : "var(--card)",
-            color: currentPage === p ? "white" : "var(--brand)",
-            border: "1px solid var(--border)",
-          }}
+          onClick={() => onChange(p)}
+          className={`h-10 min-w-10 rounded-lg px-3 text-sm font-medium transition-colors ${
+            p === page
+              ? "bg-primary text-white"
+              : "border border-border bg-card text-muted hover:border-primary hover:text-primary"
+          }`}
         >
           {p}
-        </motion.button>
+        </button>
       ))}
 
-      <motion.button
-        whileTap={{ scale: 0.95 }}
-        onClick={() => onPageChange(currentPage + 1)}
-        disabled={currentPage === totalPages}
-        className="w-10 h-10 rounded-xl flex items-center justify-center transition-all"
-        style={{
-          backgroundColor: "var(--card)",
-          border: "1px solid var(--border)",
-          color: currentPage === totalPages ? "var(--muted)" : "var(--brand)",
-          opacity: currentPage === totalPages ? 0.5 : 1,
-          cursor: currentPage === totalPages ? "not-allowed" : "pointer",
-        }}
+      <button
+        onClick={() => onChange(page + 1)}
+        disabled={page >= totalPage}
+        className="flex h-10 w-10 items-center justify-center rounded-lg border border-border bg-card text-muted transition-colors hover:border-primary hover:text-primary disabled:cursor-not-allowed disabled:opacity-40"
       >
-        <ChevronRight size={18} />
-      </motion.button>
+        <ChevronRight className="h-4 w-4" />
+      </button>
     </div>
   );
 }

@@ -1,9 +1,9 @@
 import "./globals.css";
 import { Inter } from "next/font/google";
-import { Toaster } from "react-hot-toast";
 
 import { AuthProvider } from "@/context/AuthContext";
 import ReactQueryProvider from "@/providers/ReactQueryProvider";
+import ToastProvider from "@/components/providers/ToastProvider";
 
 const inter = Inter({
   subsets: ["latin"],
@@ -13,7 +13,7 @@ const inter = Inter({
 
 export const metadata = {
   title: {
-    default: "Fable — Discover & Read Original Ebooks",
+    default: "Fable Ebook Platform",
     template: "%s | Fable",
   },
   description:
@@ -22,24 +22,11 @@ export const metadata = {
 
 export default function RootLayout({ children }) {
   return (
-    <html lang="en">
+    <html lang="en" suppressHydrationWarning>
       <body className={inter.className}>
         <AuthProvider>
-          <ReactQueryProvider>
-            {children}
-          </ReactQueryProvider>
-
-          <Toaster
-            position="top-right"
-            toastOptions={{
-              duration: 3000,
-              style: {
-                background: "#FFF1E8",
-                color: "#312E81",
-                border: "1px solid #F97316",
-              },
-            }}
-          />
+          <ReactQueryProvider>{children}</ReactQueryProvider>
+          <ToastProvider />
         </AuthProvider>
       </body>
     </html>

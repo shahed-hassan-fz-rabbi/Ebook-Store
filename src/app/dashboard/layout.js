@@ -1,11 +1,12 @@
 "use client";
 
 import ProtectedRoute from "@/components/auth/ProtectedRoute";
+import DashboardShell from "@/components/dashboard/DashboardShell";
 
-export default function WriterLayout({ children }) {
+export default function DashboardLayout({ children }) {
   return (
-    <ProtectedRoute roles={["writer"]}>
-      {children}
+    <ProtectedRoute allowedRoles={["reader", "writer", "admin"]}>
+      <DashboardShell>{children}</DashboardShell>
     </ProtectedRoute>
   );
 }
