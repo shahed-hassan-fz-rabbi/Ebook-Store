@@ -21,25 +21,31 @@ export default function FeaturedBooks() {
   const books = items.map(normalizeEbook);
 
   return (
-    <section className="w-full py-20">
-      <div className="mx-auto w-full max-w-7xl px-6 lg:px-8">
-        <div className="mb-10 flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
-          <div>
-            <h2 className="text-3xl font-bold tracking-tight text-text">
-              Featured Ebooks
-            </h2>
-            <p className="mt-2 text-muted">
-              Freshly published stories from independent writers.
-            </p>
-          </div>
-
-          <Link href="/browse">
-            <Button variant="outline" size="md">
-              View all <ArrowRight className="h-4 w-4" />
-            </Button>
-          </Link>
+    <section className="w-full relative overflow-hidden transition-colors duration-300">
+      {/* Reduced paddingTop and kept proportional spacing */}
+      <div
+        className="max-w-7xl mx-auto"
+        style={{
+          paddingLeft: "clamp(1.5rem, 6vw, 5rem)",
+          paddingRight: "clamp(1.5rem, 6vw, 5rem)",
+          paddingTop: "clamp(1.5rem, 4vw, 3rem)",
+          paddingBottom: "clamp(4rem, 10vw, 8rem)",
+        }}
+      >
+        {/* Clean Header Block - View all button removed from here */}
+        <div className="mb-14 text-left">
+          <h2 
+            className="text-3xl font-extrabold tracking-tight sm:text-4xl font-[family-name:var(--font-serif)]"
+            style={{ color: "var(--brand)" }}
+          >
+            Featured Ebooks
+          </h2>
+          <p className="mt-2 text-base font-medium" style={{ color: "var(--muted)" }}>
+            Freshly published stories from independent writers.
+          </p>
         </div>
 
+        {/* Content Section */}
         {isLoading ? (
           <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
             {Array.from({ length: 8 }).map((_, i) => (
@@ -63,11 +69,28 @@ export default function FeaturedBooks() {
             description="New stories are on the way — check back soon."
           />
         ) : (
-          <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-            {books.map((book) => (
-              <EbookCard key={book.id} ebook={book} />
-            ))}
-          </div>
+          <>
+            {/* Ebook Cards Grid */}
+            <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+              {books.map((book) => (
+                <EbookCard key={book.id} ebook={book} />
+              ))}
+            </div>
+
+            {/* Centered View All Button under the cards */}
+            <div className="mt-14 flex justify-center w-full">
+              <Link href="/browse" className="w-full sm:w-auto">
+                <Button 
+                  variant="outline" 
+                  size="lg" 
+                  className="w-full sm:w-auto flex items-center justify-center gap-2 px-10 py-3.5 text-base font-semibold rounded-xl border-2 transition-all hover:scale-[1.02]"
+                  style={{ borderColor: "var(--border)", backgroundColor: "var(--card)", color: "var(--brand)" }}
+                >
+                  View all Ebooks <ArrowRight className="h-4 w-4 shrink-0" style={{ color: "var(--primary)" }} />
+                </Button>
+              </Link>
+            </div>
+          </>
         )}
       </div>
     </section>

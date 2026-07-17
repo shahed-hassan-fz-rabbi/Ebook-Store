@@ -22,24 +22,41 @@ export default function TopWriters() {
   const writers = list.map(normalizeWriter).slice(0, 3);
 
   return (
-    <section id="top-writers" className="bg-card-alt/40">
-      <div className="mx-auto max-w-7xl px-4 py-20 sm:px-6 lg:px-8">
-        <div className="mb-12 text-center">
-          <div className="mx-auto mb-4 inline-flex items-center gap-2 rounded-full bg-primary/10 px-4 py-1.5 text-[13px] font-semibold text-primary">
+    <section id="top-writers" className="w-full relative overflow-hidden transition-colors duration-300">
+      {/* Tightened top and bottom padding for an optimized layout flow */}
+      <div 
+        className="max-w-7xl mx-auto"
+        style={{
+          paddingLeft: "clamp(1.5rem, 6vw, 5rem)",
+          paddingRight: "clamp(1.5rem, 6vw, 5rem)",
+          paddingTop: "0.5rem", // Drastically reduced gap below the "View all" button above
+          paddingBottom: "clamp(1.5rem, 4vw, 3rem)", // Fixed bottom gap before the Testimonials section
+        }}
+      >
+        {/* Header Block */}
+        <div className="mb-12 text-center flex flex-col items-center justify-center">
+          <div 
+            className="mb-4 inline-flex items-center gap-2 rounded-full px-4 py-1.5 text-[13px] font-bold border backdrop-blur-sm shadow-sm"
+            style={{ backgroundColor: "rgba(249, 115, 22, 0.1)", color: "var(--primary)", borderColor: "var(--border)" }}
+          >
             <Award className="h-3.5 w-3.5" /> Leaderboard
           </div>
-          <h2 className="text-3xl font-bold tracking-tight text-text sm:text-4xl">
+          <h2 
+            className="text-3xl font-extrabold tracking-tight sm:text-4xl font-[family-name:var(--font-serif)]"
+            style={{ color: "var(--brand)" }}
+          >
             Top Writers
           </h2>
-          <p className="mx-auto mt-3 max-w-md text-[17px] text-muted">
+          <p className="mt-3 max-w-md text-base md:text-[17px] font-medium" style={{ color: "var(--muted)" }}>
             The authors readers keep coming back to.
           </p>
         </div>
 
+        {/* Content Section */}
         {isLoading ? (
-          <div className="grid gap-6 md:grid-cols-3">
+          <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
             {Array.from({ length: 3 }).map((_, i) => (
-              <Skeleton key={i} className="h-56 w-full rounded-2xl" />
+              <Skeleton key={i} className="h-64 w-full rounded-2xl" />
             ))}
           </div>
         ) : writers.length === 0 ? (
@@ -49,7 +66,7 @@ export default function TopWriters() {
             description="Once readers start buying, top writers will appear here."
           />
         ) : (
-          <div className="grid gap-6 md:grid-cols-3">
+          <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
             {writers.map((w, i) => (
               <motion.div
                 key={w.id || i}
@@ -57,7 +74,8 @@ export default function TopWriters() {
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
                 transition={{ duration: 0.45, delay: i * 0.1 }}
-                className="relative overflow-hidden rounded-2xl border border-border bg-card p-8 text-center transition-all hover:-translate-y-1 hover:shadow-[0_20px_50px_-25px_var(--shadow)]"
+                className="relative overflow-hidden rounded-2xl border p-8 text-center transition-all duration-300 hover:-translate-y-1 hover:shadow-lg"
+                style={{ backgroundColor: "var(--card)", borderColor: "var(--border)" }}
               >
                 {i === 0 && (
                   <Crown
@@ -73,30 +91,36 @@ export default function TopWriters() {
                   {i + 1}
                 </span>
 
-                <div className="mx-auto mt-4 mb-5 flex h-24 w-24 items-center justify-center overflow-hidden rounded-full border-4 bg-card-alt"
-                  style={{ borderColor: `${medal[i]}40` }}
+                <div 
+                  className="mx-auto mt-4 mb-5 flex h-24 w-24 items-center justify-center overflow-hidden rounded-full border-4"
+                  style={{ borderColor: `${medal[i]}40`, backgroundColor: "var(--background)" }}
                 >
                   {w.photo ? (
                     // eslint-disable-next-line @next/next/no-img-element
                     <img src={w.photo} alt={w.name} className="h-full w-full object-cover" />
                   ) : (
-                    <User className="h-9 w-9 text-muted" />
+                    <User className="h-9 w-9" style={{ color: "var(--muted)" }} />
                   )}
                 </div>
 
-                <h3 className="text-lg font-semibold text-text">{w.name}</h3>
+                <h3 className="text-lg font-bold tracking-tight" style={{ color: "var(--brand)" }}>
+                  {w.name}
+                </h3>
 
-                <div className="mt-4 flex items-center justify-center gap-6 border-t border-border pt-4">
+                <div 
+                  className="mt-6 flex items-center justify-center gap-6 border-t pt-4"
+                  style={{ borderColor: "var(--border)" }}
+                >
                   <div>
-                    <p className="text-xl font-bold text-text">{w.totalSales}</p>
-                    <p className="text-xs text-muted">Sales</p>
+                    <p className="text-xl font-black" style={{ color: "var(--brand)" }}>{w.totalSales}</p>
+                    <p className="text-xs font-semibold" style={{ color: "var(--muted)" }}>Sales</p>
                   </div>
-                  <div className="h-8 w-px bg-border" />
+                  <div className="h-8 w-px" style={{ backgroundColor: "var(--border)" }} />
                   <div>
-                    <p className="text-xl font-bold text-text">
+                    <p className="text-xl font-black" style={{ color: "var(--brand)" }}>
                       ${Number(w.totalRevenue).toFixed(0)}
                     </p>
-                    <p className="text-xs text-muted">Revenue</p>
+                    <p className="text-xs font-semibold" style={{ color: "var(--muted)" }}>Revenue</p>
                   </div>
                 </div>
               </motion.div>

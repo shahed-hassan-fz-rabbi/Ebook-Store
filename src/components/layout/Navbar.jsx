@@ -13,7 +13,6 @@ import {
 } from "lucide-react";
 import { useAuth } from "@/context/AuthContext";
 
-
 const DROPDOWN_ITEMS = {
   reader: [
     { label: "Dashboard", href: "/dashboard/user", icon: LayoutDashboard },
@@ -38,8 +37,6 @@ const DROPDOWN_ITEMS = {
     { label: "Analytics", href: "/dashboard/admin/analytics", icon: BarChart2 },
   ],
 };
-
-
 
 function BookMark({ hovered }) {
   return (
@@ -179,61 +176,69 @@ function UserDropdown({ user, onLogout }) {
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: 6, scale: 0.98 }}
             transition={{ duration: 0.15 }}
-            className="absolute right-0 top-full mt-2 w-60 rounded-xl border shadow-xl overflow-hidden z-50"
+            className="absolute right-0 top-full mt-2 w-64 rounded-xl border shadow-xl overflow-hidden z-50 p-2"
             style={{
               backgroundColor: "var(--background)",
               borderColor: "var(--border)",
-              boxShadow: "0 8px 30px rgba(0,0,0,0.1)",
+              boxShadow: "0 10px 40px -10px rgba(0,0,0,0.12)",
             }}
           >
             <div
-              className="px-4 py-3.5 border-b flex items-center gap-3"
+              className="px-4 py-3 border-b flex items-center gap-3 mb-2 rounded-lg"
               style={{ borderColor: "var(--border)", backgroundColor: "var(--card)" }}
             >
-              <AvatarCircle user={user} size={40} />
+              <AvatarCircle user={user} size={36} />
               <div className="flex flex-col min-w-0">
                 <p
-                  className="text-[15px] font-medium truncate italic font-[family-name:var(--font-serif)]"
+                  className="text-[14px] font-bold truncate italic font-[family-name:var(--font-serif)]"
                   style={{ color: "var(--brand)" }}
                 >
                   {user.name}
                 </p>
-                <p className="text-[11px] truncate uppercase mt-0.5 font-semibold tracking-wide" style={{ color: "var(--primary)" }}>
+                <p className="text-[10px] truncate uppercase mt-0.5 font-bold tracking-wide" style={{ color: "var(--primary)" }}>
                   {roleKey}
                 </p>
               </div>
             </div>
 
-            <div className="py-1.5">
+            <div className="space-y-1">
               {items.map(({ label, href, icon: Icon }) => (
                 <Link
                   key={href}
                   href={href}
-                  className="flex items-center gap-3 px-4 py-2.5 text-sm transition-colors"
+                  className="flex items-center gap-3.5 px-4 py-2.5 text-sm rounded-lg transition-all font-medium"
                   style={{ color: "var(--brand)" }}
                   onMouseEnter={(e) => {
                     e.currentTarget.style.backgroundColor = "var(--card)";
                     e.currentTarget.style.color = "var(--primary)";
+                    e.currentTarget.style.paddingLeft = "1.25rem";
                   }}
                   onMouseLeave={(e) => {
                     e.currentTarget.style.backgroundColor = "transparent";
                     e.currentTarget.style.color = "var(--brand)";
+                    e.currentTarget.style.paddingLeft = "1rem";
                   }}
                 >
-                  <Icon size={15} style={{ color: "var(--primary)" }} />
+                  <Icon size={16} className="shrink-0" style={{ color: "var(--primary)" }} />
                   {label}
                 </Link>
               ))}
             </div>
 
-            <div className="border-t py-1.5" style={{ borderColor: "var(--border)" }}>
+            <div className="border-t mt-2 pt-1.5" style={{ borderColor: "var(--border)" }}>
               <button
                 onClick={onLogout}
-                className="flex w-full items-center gap-3 px-4 py-2.5 text-sm text-red-500 transition-colors"
-                onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = "rgba(239,68,68,0.06)")}
-                onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = "transparent")}
+                className="flex w-full items-center gap-3.5 px-4 py-2.5 text-sm text-red-500 font-bold rounded-lg transition-all"
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.backgroundColor = "rgba(239,68,68,0.06)";
+                  e.currentTarget.style.paddingLeft = "1.25rem";
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.backgroundColor = "transparent";
+                  e.currentTarget.style.paddingLeft = "1rem";
+                }}
               >
-                <LogOut size={15} />
+                <LogOut size={16} className="shrink-0" />
                 Logout
               </button>
             </div>
@@ -327,253 +332,259 @@ export default function Navbar() {
         boxShadow: scrolled ? "0 4px 20px -2px rgba(0,0,0,0.06)" : "none",
       }}
     >
-      <div className="container mx-auto px-4 xl:px-8 max-w-7xl">
-        <div className="flex items-center justify-between h-16 gap-3 lg:gap-6">
-          <Logo />
+      <div 
+        className="max-w-7xl mx-auto h-16 flex items-center justify-between gap-3 lg:gap-6"
+        style={{ paddingLeft: "clamp(1.5rem, 6vw, 5rem)", paddingRight: "clamp(1.5rem, 6vw, 5rem)" }}
+      >
+        <Logo />
 
-         
-          <form onSubmit={handleSearch} className="hidden lg:flex items-center relative flex-1 max-w-sm">
-            <Search
-              size={15}
-              className="absolute left-0.5"
-              style={{ color: searchFocused ? "var(--primary)" : "var(--muted)" }}
-            />
-            <input
-              type="text"
-              placeholder="Search the shelf…"
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              onFocus={() => setSearchFocused(true)}
-              onBlur={() => setSearchFocused(false)}
-              className="w-full h-9 pl-6 pr-2 text-sm outline-none transition-colors bg-transparent border-b"
-              style={{
-                borderColor: searchFocused ? "var(--primary)" : "var(--border)",
-                color: "var(--brand)",
-              }}
-            />
-          </form>
-
-         
-          <nav className="hidden xl:flex items-center gap-1">
-            {navLinks.map((link) => {
-              const active = isActive(link.href);
-              return (
-                <Link
-                  key={link.href}
-                  href={link.href}
-                  className="relative px-3 py-2 text-sm font-medium transition-colors whitespace-nowrap"
-                  style={{ color: active ? "var(--primary)" : "var(--brand)" }}
-                >
-                  {link.label}
-                  {active && (
-                    <motion.span
-                      layoutId="activeBookmarkTab"
-                      className="absolute -top-[1px] left-1/2 -translate-x-1/2 w-3 h-1.5 rounded-b-sm"
-                      style={{ backgroundColor: "var(--primary)" }}
-                      transition={{ type: "spring", stiffness: 380, damping: 30 }}
-                    />
-                  )}
-                </Link>
-              );
-            })}
-          </nav>
-
-          {/* Desktop Right */}
-          <div className="hidden md:flex items-center gap-3 shrink-0">
-            {user?.role === "reader" && (
-              <Link
-                href="/become-writer"
-                className="hidden lg:flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all hover:opacity-80 border"
-                style={{ backgroundColor: "var(--card)", color: "var(--primary)", borderColor: "var(--border)" }}
-              >
-                <PenTool size={13} />
-                Become a Writer
-              </Link>
-            )}
-
-            <button
-              className="relative p-2 rounded-lg transition-colors border"
-              style={{ backgroundColor: "var(--card)", borderColor: "var(--border)", color: "var(--brand)" }}
-              aria-label="Notifications"
-            >
-              <Bell size={16} />
-              <span className="absolute top-1.5 right-1.5 w-1.5 h-1.5 rounded-full" style={{ backgroundColor: "var(--primary)" }} />
-            </button>
-
-            <div className="w-px h-5 mx-0.5" style={{ backgroundColor: "var(--border)" }} />
-
-            <button
-              onClick={toggleTheme}
-              className="p-2 rounded-lg transition-colors border"
-              style={{ backgroundColor: "var(--card)", borderColor: "var(--border)", color: "var(--brand)" }}
-              aria-label="Toggle theme"
-            >
-              {mounted && darkMode ? <Sun size={16} /> : <Moon size={16} />}
-            </button>
-
-            {authLoading ? (
-              <div className="w-24 h-9 rounded-lg animate-pulse ml-2" style={{ backgroundColor: "var(--card)" }} />
-            ) : user ? (
-              <div className="ml-2">
-                <UserDropdown user={user} onLogout={handleLogout} />
-              </div>
-            ) : (
-              <div className="flex items-center gap-4 ml-2">
-                <Link
-                  href="/login"
-                  className="text-sm font-medium relative"
-                  style={{ color: "var(--brand)" }}
-                >
-                  Login
-                </Link>
-                <Link
-                  href="/register"
-                  className="px-4 py-2 rounded-lg text-sm font-semibold text-white shadow-sm hover:opacity-90 transition-opacity"
-                  style={{ backgroundColor: "var(--primary)" }}
-                >
-                  Register
-                </Link>
-              </div>
-            )}
-          </div>
-
-          
-          <button
-            className="md:hidden p-2 rounded-lg transition-colors"
-            style={{ color: "var(--brand)" }}
-            onClick={() => setMenuOpen((v) => !v)}
-            aria-label="Toggle menu"
+        <form onSubmit={handleSearch} className="hidden lg:flex items-center relative flex-1 max-w-sm">
+          <div className="w-full relative flex items-center bg-transparent border-b transition-colors"
+            style={{ borderColor: searchFocused ? "var(--primary)" : "var(--border)" }}
           >
-            {menuOpen ? <X size={20} /> : <Menu size={20} />}
+            <div className="flex items-center gap-2 w-full h-9 px-1">
+              <Search
+                size={15}
+                className="shrink-0 transition-colors"
+                style={{ color: searchFocused ? "var(--primary)" : "var(--muted)" }}
+              />
+              <input
+                type="text"
+                placeholder="Search the shelf…"
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                onFocus={() => setSearchFocused(true)}
+                onBlur={() => setSearchFocused(false)}
+                className="w-full h-full text-sm outline-none bg-transparent"
+                style={{ color: "var(--brand)" }}
+              />
+            </div>
+          </div>
+        </form>
+
+        <nav className="hidden xl:flex items-center gap-1">
+          {navLinks.map((link) => {
+            const active = isActive(link.href);
+            return (
+              <Link
+                key={link.href}
+                href={link.href}
+                className="relative px-3 py-2 text-sm font-medium transition-colors whitespace-nowrap"
+                style={{ color: active ? "var(--primary)" : "var(--brand)" }}
+              >
+                {link.label}
+              </Link>
+            );
+          })}
+        </nav>
+
+        <div className="hidden md:flex items-center gap-3 shrink-0">
+          {user?.role === "reader" && (
+            <Link
+              href="/become-writer"
+              className="hidden lg:flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all hover:opacity-80 border"
+              style={{ backgroundColor: "var(--card)", color: "var(--primary)", borderColor: "var(--border)" }}
+            >
+              <PenTool size={13} />
+              Become a Writer
+            </Link>
+          )}
+
+          <button
+            className="relative p-2 rounded-lg transition-colors border"
+            style={{ backgroundColor: "var(--card)", borderColor: "var(--border)", color: "var(--brand)" }}
+            aria-label="Notifications"
+          >
+            <Bell size={16} />
+            <span className="absolute top-1.5 right-1.5 w-1.5 h-1.5 rounded-full" style={{ backgroundColor: "var(--primary)" }} />
           </button>
+
+          <div className="w-px h-5 mx-0.5" style={{ backgroundColor: "var(--border)" }} />
+
+          <button
+            onClick={toggleTheme}
+            className="p-2 rounded-lg transition-colors border"
+            style={{ backgroundColor: "var(--card)", borderColor: "var(--border)", color: "var(--brand)" }}
+            aria-label="Toggle theme"
+          >
+            {mounted && darkMode ? <Sun size={16} /> : <Moon size={16} />}
+          </button>
+
+          {authLoading ? (
+            <div className="w-24 h-9 rounded-lg animate-pulse ml-2" style={{ backgroundColor: "var(--card)" }} />
+          ) : user ? (
+            <div className="ml-2">
+              <UserDropdown user={user} onLogout={handleLogout} />
+            </div>
+          ) : (
+            <div className="flex items-center gap-4 ml-2">
+              <Link
+                href="/login"
+                className="text-sm font-medium relative"
+                style={{ color: "var(--brand)" }}
+              >
+                Login
+              </Link>
+              <Link
+                href="/register"
+                className="px-4 py-2 rounded-lg text-sm font-semibold text-white shadow-sm hover:opacity-90 transition-opacity"
+                style={{ backgroundColor: "var(--primary)" }}
+              >
+                Register
+              </Link>
+            </div>
+          )}
         </div>
 
-        {/* Mobile Menu */}
-        <AnimatePresence>
-          {menuOpen && (
-            <motion.div
-              initial={{ opacity: 0, height: 0 }}
-              animate={{ opacity: 1, height: "auto" }}
-              exit={{ opacity: 0, height: 0 }}
-              transition={{ duration: 0.2 }}
-              className="md:hidden overflow-hidden border-t"
-              style={{ borderColor: "var(--border)" }}
+        <button
+          className="md:hidden p-2 rounded-lg transition-colors"
+          style={{ color: "var(--brand)" }}
+          onClick={() => setMenuOpen((v) => !v)}
+          aria-label="Toggle menu"
+        >
+          {menuOpen ? <X size={20} /> : <Menu size={20} />}
+        </button>
+      </div>
+
+      <AnimatePresence>
+        {menuOpen && (
+          <motion.div
+            initial={{ opacity: 0, height: 0 }}
+            animate={{ opacity: 1, height: "auto" }}
+            exit={{ opacity: 0, height: 0 }}
+            transition={{ duration: 0.2 }}
+            className="md:hidden overflow-hidden border-t"
+            style={{ borderColor: "var(--border)", backgroundColor: "var(--background)" }}
+          >
+            {/* Added pb-12 to generate a professional bottom margin on mobile devices */}
+            <div 
+              className="py-5 pb-12 flex flex-col gap-2"
+              style={{ paddingLeft: "clamp(1.5rem, 6vw, 5rem)", paddingRight: "clamp(1.5rem, 6vw, 5rem)" }}
             >
-              <div className="py-3 flex flex-col gap-2">
-                <form onSubmit={handleSearch} className="px-4 mb-2">
-                  <div className="relative w-full flex items-center">
-                    <Search size={15} className="absolute left-0.5" style={{ color: "var(--muted)" }} />
+              <form onSubmit={handleSearch} className="mb-4">
+                <div className="w-full relative flex items-center bg-transparent border-b transition-colors"
+                  style={{ borderColor: searchFocused ? "var(--primary)" : "var(--border)" }}
+                >
+                  <div className="flex items-center gap-2 w-full h-9 px-1">
+                    <Search
+                      size={15}
+                      className="shrink-0 transition-colors"
+                      style={{ color: searchFocused ? "var(--primary)" : "var(--muted)" }}
+                    />
                     <input
                       type="text"
                       placeholder="Search the shelf…"
                       value={searchQuery}
                       onChange={(e) => setSearchQuery(e.target.value)}
-                      className="w-full h-9 pl-6 pr-2 text-sm outline-none bg-transparent border-b"
-                      style={{ borderColor: "var(--border)", color: "var(--brand)" }}
+                      onFocus={() => setSearchFocused(true)}
+                      onBlur={() => setSearchFocused(false)}
+                      className="w-full h-full text-sm outline-none bg-transparent"
+                      style={{ color: "var(--brand)" }}
                     />
                   </div>
-                </form>
+                </div>
+              </form>
 
+              <div className="flex flex-col gap-1">
                 {navLinks.map((link) => {
                   const active = isActive(link.href);
                   return (
                     <Link
                       key={link.href}
                       href={link.href}
-                      className="flex items-center gap-2 px-4 py-2.5 mx-2 rounded-lg text-sm font-medium"
-                      style={{
-                        color: active ? "var(--primary)" : "var(--brand)",
-                        backgroundColor: active ? "var(--card)" : "transparent",
-                      }}
+                      className="flex items-center gap-2.5 py-2.5 text-sm font-semibold rounded-lg transition-colors"
+                      style={{ color: active ? "var(--primary)" : "var(--brand)" }}
                     >
-                      {active && <span className="w-1 h-1 rounded-full" style={{ backgroundColor: "var(--primary)" }} />}
+                      {active && <span className="w-1.5 h-1.5 rounded-full shrink-0" style={{ backgroundColor: "var(--primary)" }} />}
                       {link.label}
                     </Link>
                   );
                 })}
+              </div>
 
-                <div className="h-px my-2 mx-4" style={{ backgroundColor: "var(--border)" }} />
+              <div className="h-px my-3" style={{ backgroundColor: "var(--border)" }} />
 
-                {authLoading ? (
-                  <div className="h-10 rounded-lg animate-pulse mx-4" style={{ backgroundColor: "var(--card)" }} />
-                ) : user ? (
-                  <>
-                    <div className="flex items-center gap-3 px-4 py-2.5">
-                      <AvatarCircle user={user} size={40} />
-                      <div>
-                        <p className="text-sm font-medium italic font-[family-name:var(--font-serif)]" style={{ color: "var(--brand)" }}>
-                          {user.name}
-                        </p>
-                        <p className="text-[11px] uppercase font-semibold tracking-wide" style={{ color: "var(--primary)" }}>
-                          {user.role}
-                        </p>
-                      </div>
+              {authLoading ? (
+                <div className="h-10 rounded-lg animate-pulse" style={{ backgroundColor: "var(--card)" }} />
+              ) : user ? (
+                <div className="flex flex-col gap-1">
+                  <div className="flex items-center gap-3 py-2.5 mb-2 border-b" style={{ borderColor: "var(--border)" }}>
+                    <AvatarCircle user={user} size={36} />
+                    <div>
+                      <p className="text-sm font-bold italic font-[family-name:var(--font-serif)]" style={{ color: "var(--brand)" }}>
+                        {user.name}
+                      </p>
+                      <p className="text-[10px] uppercase font-bold tracking-wide mt-0.5" style={{ color: "var(--primary)" }}>
+                        {user.role}
+                      </p>
                     </div>
-
-                    {user.role === "reader" && (
-                      <Link
-                        href="/become-writer"
-                        className="flex items-center gap-3 px-4 py-2.5 mx-2 rounded-lg text-sm font-semibold"
-                        style={{ color: "var(--primary)", backgroundColor: "var(--card)" }}
-                      >
-                        <PenTool size={15} />
-                        Become a Writer
-                      </Link>
-                    )}
-
-                    {(DROPDOWN_ITEMS[user?.role === "admin" ? "admin" : user?.role === "writer" ? "writer" : "reader"] || []).map(({ label, href, icon: Icon }) => (
-                      <Link
-                        key={href}
-                        href={href}
-                        className="flex items-center gap-3 px-4 py-2.5 mx-2 rounded-lg text-sm"
-                        style={{ color: "var(--brand)" }}
-                      >
-                        <Icon size={15} style={{ color: "var(--primary)" }} />
-                        {label}
-                      </Link>
-                    ))}
-
-                    <button
-                      onClick={handleLogout}
-                      className="flex items-center gap-3 px-4 py-2.5 mx-2 rounded-lg text-sm text-red-500 mt-1 hover:bg-red-50 dark:hover:bg-red-950/30 transition-colors"
-                    >
-                      <LogOut size={15} />
-                      Logout
-                    </button>
-                  </>
-                ) : (
-                  <div className="px-4 flex flex-col gap-2">
-                    <Link
-                      href="/login"
-                      className="flex items-center justify-center h-10 rounded-lg text-sm font-medium border"
-                      style={{ borderColor: "var(--border)", color: "var(--brand)" }}
-                    >
-                      Login
-                    </Link>
-                    <Link
-                      href="/register"
-                      className="flex items-center justify-center h-10 rounded-lg text-sm font-semibold text-white"
-                      style={{ backgroundColor: "var(--primary)" }}
-                    >
-                      Register
-                    </Link>
                   </div>
-                )}
 
-                <div className="px-4 mt-2">
+                  {user.role === "reader" && (
+                    <Link
+                      href="/become-writer"
+                      className="flex items-center gap-3 py-2.5 text-sm font-bold"
+                      style={{ color: "var(--primary)" }}
+                    >
+                      <PenTool size={15} />
+                      Become a Writer
+                    </Link>
+                  )}
+
+                  {(DROPDOWN_ITEMS[user?.role === "admin" ? "admin" : user?.role === "writer" ? "writer" : "reader"] || []).map(({ label, href, icon: Icon }) => (
+                    <Link
+                      key={href}
+                      href={href}
+                      className="flex items-center gap-3 py-2.5 text-sm font-medium"
+                      style={{ color: "var(--brand)" }}
+                    >
+                      <Icon size={15} style={{ color: "var(--primary)" }} />
+                      {label}
+                    </Link>
+                  ))}
+
                   <button
-                    onClick={toggleTheme}
-                    className="flex items-center justify-center gap-2 h-10 w-full rounded-lg border text-sm font-medium"
-                    style={{ borderColor: "var(--border)", color: "var(--brand)" }}
+                    onClick={handleLogout}
+                    className="flex items-center gap-3 py-2.5 text-sm font-bold text-red-500 mt-2 border-t"
+                    style={{ borderColor: "var(--border)" }}
                   >
-                    {mounted && darkMode ? <><Sun size={16} /> Light Mode</> : <><Moon size={16} /> Dark Mode</>}
+                    <LogOut size={15} />
+                    Logout
                   </button>
                 </div>
+              ) : (
+                <div className="flex flex-col gap-2 mt-2">
+                  <Link
+                    href="/login"
+                    className="flex items-center justify-center h-10 rounded-lg text-sm font-semibold border"
+                    style={{ borderColor: "var(--border)", color: "var(--brand)" }}
+                  >
+                    Login
+                  </Link>
+                  <Link
+                    href="/register"
+                    className="flex items-center justify-center h-10 rounded-lg text-sm font-semibold text-white"
+                    style={{ backgroundColor: "var(--primary)" }}
+                  >
+                    Register
+                  </Link>
+                </div>
+              )}
+
+              <div className="mt-4">
+                <button
+                  onClick={toggleTheme}
+                  className="flex items-center justify-center gap-2 h-10 w-full rounded-xl border text-sm font-bold transition-colors"
+                  style={{ borderColor: "var(--border)", color: "var(--brand)", backgroundColor: "var(--card)" }}
+                >
+                  {mounted && darkMode ? <Sun size={15} className="shrink-0" /> : <Moon size={15} className="shrink-0" />}
+                  {mounted && darkMode ? "Light Mode" : "Dark Mode"}
+                </button>
               </div>
-            </motion.div>
-          )}
-        </AnimatePresence>
-      </div>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </motion.header>
   );
 }

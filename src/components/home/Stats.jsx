@@ -24,8 +24,16 @@ export default function Stats() {
   ];
 
   return (
-    <section className="border-y border-border bg-card">
-      <div className="mx-auto grid max-w-7xl grid-cols-2 gap-8 px-4 py-12 sm:px-6 lg:grid-cols-4 lg:px-8">
+    <section className="relative z-20 border-y border-border bg-card">
+      <div
+        className="mx-auto grid max-w-7xl grid-cols-2 gap-x-8 gap-y-10 lg:grid-cols-4"
+        style={{
+          paddingLeft: "clamp(1.5rem, 6vw, 5rem)",
+          paddingRight: "clamp(1.5rem, 6vw, 5rem)",
+          paddingTop: "clamp(2.5rem, 5vw, 3.5rem)",
+          paddingBottom: "clamp(2.5rem, 5vw, 3.5rem)",
+        }}
+      >
         {stats.map((s, i) => {
           const Icon = s.icon;
           return (
