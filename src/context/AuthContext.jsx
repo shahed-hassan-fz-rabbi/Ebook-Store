@@ -16,9 +16,7 @@ export function AuthProvider({ children }) {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
 
-  //--------------------------------------------------
-  // Load Current User (JWT)
-  //--------------------------------------------------
+  
 
   const fetchCurrentUser = async () => {
   try {
@@ -36,13 +34,11 @@ export function AuthProvider({ children }) {
   }
 };
 
-  //--------------------------------------------------
-  // Better Auth Session Check (handles Google redirect)
-  //--------------------------------------------------
+  
 
   const checkSession = async () => {
     try {
-      // If we already have our own JWT, just load the user
+      
       const existingToken = localStorage.getItem("accessToken");
       if (existingToken) {
         await fetchCurrentUser();
@@ -50,7 +46,7 @@ export function AuthProvider({ children }) {
         return;
       }
 
-      // Otherwise check if there's a Better Auth session (Google)
+      
       const session = await authClient.getSession();
 
       if (!session?.data?.user) {
@@ -58,8 +54,7 @@ export function AuthProvider({ children }) {
         return;
       }
 
-      // We have a Better Auth session but no JWT yet (edge case)
-      // Sync it to get our JWT
+      
       const res = await axiosInstance.post("/users/google-sync", {
         name: session.data.user.name,
         email: session.data.user.email,
@@ -75,9 +70,6 @@ export function AuthProvider({ children }) {
     setLoading(false);
   };
 
-  //--------------------------------------------------
-  // Email Login (existing JWT API)
-  //--------------------------------------------------
 
   const login = async ({ email, password }) => {
     const res = await axiosInstance.post("/users/login", {
