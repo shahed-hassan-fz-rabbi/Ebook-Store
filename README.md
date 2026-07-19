@@ -1,12 +1,14 @@
-# 📚 Fable - Ebook Sharing Platform
+# 📚 Fable - Ebook Sharing Platform(Client)
 
-Fable is a modern MERN-based Ebook Sharing Platform where readers can discover, purchase, and read ebooks, while writers can publish and manage their own ebooks. The platform includes secure authentication, Stripe payment integration, role-based dashboards, analytics, and reading progress tracking.
+Fable is a modern MERN-based Ebook Sharing Platform where readers can discover, purchase, and read ebooks, while writers can publish and manage their own ebooks. The platform includes secure authentication, Stripe payment integration, role-based dashboards, and analytics.
 
 ---
 
 ## 🌐 Live Website
 
-https://your-vercel-link.vercel.app
+https://ebook-store-steel.vercel.app/
+
+**API Server:** https://ebook-server-svee.onrender.com
 
 ---
 
@@ -24,29 +26,33 @@ Admin@123
 
 ### Authentication
 - Email & Password Login
-- Google Login
+- Google Login (Better Auth)
 - JWT Authentication
-- Role Based Access Control
+- Role Based Access Control (Reader / Writer / Admin)
+- Protected Routes
 
 ### Reader Features
 - Browse Ebooks
-- Ebook Details
-- Stripe Purchase
+- Search, Filter & Sort
+- Ebook Details Page
+- Stripe Checkout
 - Purchased Library
 - Purchase History
-- Continue Reading
-- Reading Progress
+- Read Purchased Books
 - Bookmark System
+- Reader Dashboard
 - Reader Profile
 
 ### Writer Features
-- Writer Verification
 - Add Ebook
 - Edit Ebook
 - Delete Ebook
 - Publish / Unpublish Ebook
+- Manage All Own Ebooks
 - Sales History
 - Writer Dashboard Analytics
+- Verification Status
+- Writer Profile
 
 ### Admin Features
 - Dashboard Analytics
@@ -57,17 +63,19 @@ Admin@123
 - Publish / Unpublish Ebooks
 - Delete Ebooks
 - View All Transactions
+- Charts (Monthly Sales, Genre Distribution)
 
 ### Other Features
-- Responsive Design
+- Fully Responsive Design
 - Framer Motion Animations
-- Loading Skeleton
+- Loading Skeletons
+- Empty States
+- Toast Notifications
 - Global Loading Page
 - Custom 404 Page
 - Error Boundary
-- Search & Filtering
 - Pagination
-- Charts & Analytics
+- Dark Mode Support
 
 ---
 
@@ -75,13 +83,17 @@ Admin@123
 
 ### Frontend
 
-- Next.js
-- React
-- Tailwind CSS
+- Next.js 16
+- React 19
+- Tailwind CSS v4
 - DaisyUI
+- TanStack Query
 - Framer Motion
 - Axios
+- React Hook Form + Zod
+- Better Auth
 - Lucide React
+- React Icons
 - Recharts
 - Sonner
 
@@ -91,10 +103,11 @@ Admin@123
 - Express.js
 - MongoDB
 - Mongoose
-- JWT
+- JWT (jsonwebtoken)
+- bcrypt
 - Better Auth
 - Stripe
-- Cloudinary / ImgBB
+- imgBB (image hosting)
 
 ---
 
@@ -102,26 +115,42 @@ Admin@123
 
 ### Client
 
-- axios
-- framer-motion
-- lucide-react
-- recharts
-- sonner
 - next
 - react
 - react-dom
+- @tanstack/react-query
+- axios
+- better-auth
+- framer-motion
+- lucide-react
+- react-icons
+- react-hook-form
+- @hookform/resolvers
+- zod
+- recharts
+- sonner
+- react-hot-toast
+- js-cookie
+- jwt-decode
+- tailwindcss
+- daisyui
+- clsx
+- tailwind-merge
 
 ### Server
 
 - express
 - mongoose
+- mongodb
 - jsonwebtoken
-- bcryptjs
+- bcrypt
+- better-auth
 - stripe
 - cors
+- cookie-parser
 - dotenv
-- multer
-- cloudinary (or imgBB)
+- zod
+- nodemon (dev)
 
 ---
 
@@ -157,30 +186,48 @@ npm install
 
 ### Environment Variables
 
-Frontend
+Frontend (`.env.local`)
 
 ```env
-NEXT_PUBLIC_API_URL=
+NEXT_PUBLIC_API_URL=http://localhost:5000
 
-NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY=
+NEXT_PUBLIC_SERVER_URL=http://localhost:5000
 
-NEXT_PUBLIC_IMGBB_KEY=
+NEXT_PUBLIC_BETTER_AUTH_URL=http://localhost:5000
+
+NEXT_PUBLIC_APP_URL=http://localhost:3000
+
+NEXT_PUBLIC_IMGBB_API_KEY=your_imgbb_api_key
 ```
 
-Backend
+Backend (`.env`)
 
 ```env
-PORT=
+PORT=5000
 
-DATABASE_URL=
+NODE_ENV=development
 
-JWT_SECRET=
+DATABASE_URL=your_mongodb_connection_string
 
-STRIPE_SECRET_KEY=
+JWT_ACCESS_SECRET=your_jwt_access_secret
 
-BETTER_AUTH_SECRET=
+JWT_ACCESS_EXPIRES=7d
 
-CLIENT_URL=
+JWT_SECRET=your_jwt_secret
+
+CLIENT_URL=http://localhost:3000
+
+STRIPE_SECRET_KEY=your_stripe_secret_key
+
+STRIPE_WEBHOOK_SECRET=your_stripe_webhook_secret
+
+BETTER_AUTH_SECRET=your_better_auth_secret
+
+BETTER_AUTH_URL=http://localhost:5000
+
+GOOGLE_CLIENT_ID=your_google_client_id
+
+GOOGLE_CLIENT_SECRET=your_google_client_secret
 ```
 
 ---
@@ -199,36 +246,115 @@ Server
 npm run dev
 ```
 
+Client runs on `http://localhost:3000`
+Server runs on `http://localhost:5000`
+
 ---
 
 ## 📂 Project Structure
-
-```
 Client
 │
 ├── src
 │   ├── app
+│   │   ├── (auth)
+│   │   ├── (main)
+│   │   ├── dashboard
+│   │   ├── payment
+│   │   └── read
 │   ├── components
+│   │   ├── auth
+│   │   ├── browse
+│   │   ├── dashboard
+│   │   ├── ebook
+│   │   ├── home
+│   │   ├── layout
+│   │   ├── ui
+│   │   └── writer
+│   ├── config
 │   ├── context
 │   ├── hooks
 │   ├── lib
-│   └── utils
-
+│   ├── providers
+│   └── services
 Server
 │
 ├── src
-│   ├── modules
-│   ├── routes
-│   ├── middleware
-│   ├── utils
-│   └── config
-```
+│   ├── app
+│   │   ├── config
+│   │   ├── lib
+│   │   ├── middleware
+│   │   ├── modules
+│   │   │   ├── admin
+│   │   │   ├── bookmark
+│   │   │   ├── ebook
+│   │   │   ├── purchase
+│   │   │   ├── reading-progress
+│   │   │   ├── user
+│   │   │   └── writer
+│   │   ├── routes
+│   │   └── utils
+│   ├── app.js
+│   └── server.js
 
+---
+
+## 🔌 API Endpoints
+
+### Users
+- `POST /api/v1/users/register`
+- `POST /api/v1/users/login`
+- `POST /api/v1/users/google-sync`
+- `GET /api/v1/users/me`
+- `GET /api/v1/users/dashboard`
+- `GET /api/v1/users` (admin)
+- `PATCH /api/v1/users/:id/block` (admin)
+- `PATCH /api/v1/users/:id/unblock` (admin)
+- `PATCH /api/v1/users/:id/role` (admin)
+
+### Ebooks
+- `GET /api/v1/ebooks`
+- `GET /api/v1/ebooks/:id`
+- `POST /api/v1/ebooks` (writer/admin)
+- `PATCH /api/v1/ebooks/:id` (writer/admin)
+- `DELETE /api/v1/ebooks/:id` (writer/admin)
+
+### Purchases
+- `POST /api/v1/purchases/checkout`
+- `POST /api/v1/purchases/webhook`
+- `GET /api/v1/purchases/my`
+- `GET /api/v1/purchases/read/:ebookId`
+- `GET /api/v1/purchases/writer/sales-history` (writer)
+- `GET /api/v1/purchases/top-writers`
+- `GET /api/v1/purchases` (admin)
+
+### Bookmarks
+- `POST /api/v1/bookmarks`
+- `GET /api/v1/bookmarks`
+
+### Writer
+- `GET /api/v1/writer/dashboard` (writer)
+- `GET /api/v1/writer/top-writers`
+
+### Admin
+- `GET /api/v1/admin/stats` (admin)
+- `GET /api/v1/admin/monthly-sales` (admin)
+- `GET /api/v1/admin/ebooks-by-genre` (admin)
+
+---
+
+## 💳 Testing Payments
+
+Use Stripe test card details:
+
+Card Number: 4242 4242 4242 4242
+Expiry: Any future date
+CVC: Any 3 digits
+ZIP: Any 5 digits
 ---
 
 ## 👨‍💻 Developed By
 
-Your Name
+**MD Rabbi Miah**
 
 Department of Computer Science & Engineering
 
