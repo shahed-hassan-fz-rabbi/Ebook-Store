@@ -456,7 +456,7 @@ export default function Navbar() {
             className="md:hidden overflow-hidden border-t"
             style={{ borderColor: "var(--border)", backgroundColor: "var(--background)" }}
           >
-            {/* Added pb-12 to generate a professional bottom margin on mobile devices */}
+           
             <div 
               className="py-5 pb-12 flex flex-col gap-2"
               style={{ paddingLeft: "clamp(1.5rem, 6vw, 5rem)", paddingRight: "clamp(1.5rem, 6vw, 5rem)" }}
