@@ -1,4 +1,4 @@
-# 📚 Fable - Ebook Sharing Platform(Client)
+# 📚 Fable - Ebook Sharing Platform
 
 Fable is a modern MERN-based Ebook Sharing Platform where readers can discover, purchase, and read ebooks, while writers can publish and manage their own ebooks. The platform includes secure authentication, Stripe payment integration, role-based dashboards, and analytics.
 
@@ -12,13 +12,20 @@ https://ebook-store-steel.vercel.app/
 
 ---
 
+## 📦 Repositories
+
+**Client:** https://github.com/shahed-hassan-fz-rabbi/Ebook-Store
+
+**Server:** https://github.com/shahed-hassan-fz-rabbi/Ebook-Server
+
+---
+
 ## 🔑 Admin Credentials
 
-Email:
-admin@fable.com
-
-Password:
-Admin@123
+```
+Email: admin@fable.com
+Password: Admin@123
+```
 
 ---
 
@@ -82,7 +89,6 @@ Admin@123
 ## 🛠️ Technologies Used
 
 ### Frontend
-
 - Next.js 16
 - React 19
 - Tailwind CSS v4
@@ -98,7 +104,6 @@ Admin@123
 - Sonner
 
 ### Backend
-
 - Node.js
 - Express.js
 - MongoDB
@@ -114,7 +119,6 @@ Admin@123
 ## 📦 NPM Packages
 
 ### Client
-
 - next
 - react
 - react-dom
@@ -138,7 +142,6 @@ Admin@123
 - tailwind-merge
 
 ### Server
-
 - express
 - mongoose
 - mongodb
@@ -159,14 +162,12 @@ Admin@123
 ### Clone Repository
 
 ```bash
-git clone <client_repo_url>
+git clone https://github.com/shahed-hassan-fz-rabbi/Ebook-Store
 ```
 
 ```bash
-git clone <server_repo_url>
+git clone https://github.com/shahed-hassan-fz-rabbi/Ebook-Server
 ```
-
----
 
 ### Install Dependencies
 
@@ -190,13 +191,9 @@ Frontend (`.env.local`)
 
 ```env
 NEXT_PUBLIC_API_URL=http://localhost:5000
-
 NEXT_PUBLIC_SERVER_URL=http://localhost:5000
-
 NEXT_PUBLIC_BETTER_AUTH_URL=http://localhost:5000
-
 NEXT_PUBLIC_APP_URL=http://localhost:3000
-
 NEXT_PUBLIC_IMGBB_API_KEY=your_imgbb_api_key
 ```
 
@@ -204,29 +201,17 @@ Backend (`.env`)
 
 ```env
 PORT=5000
-
 NODE_ENV=development
-
 DATABASE_URL=your_mongodb_connection_string
-
 JWT_ACCESS_SECRET=your_jwt_access_secret
-
 JWT_ACCESS_EXPIRES=7d
-
 JWT_SECRET=your_jwt_secret
-
 CLIENT_URL=http://localhost:3000
-
 STRIPE_SECRET_KEY=your_stripe_secret_key
-
 STRIPE_WEBHOOK_SECRET=your_stripe_webhook_secret
-
 BETTER_AUTH_SECRET=your_better_auth_secret
-
 BETTER_AUTH_URL=http://localhost:5000
-
 GOOGLE_CLIENT_ID=your_google_client_id
-
 GOOGLE_CLIENT_SECRET=your_google_client_secret
 ```
 
@@ -247,11 +232,14 @@ npm run dev
 ```
 
 Client runs on `http://localhost:3000`
+
 Server runs on `http://localhost:5000`
 
 ---
 
 ## 📂 Project Structure
+
+```
 Client
 │
 ├── src
@@ -276,6 +264,7 @@ Client
 │   ├── lib
 │   ├── providers
 │   └── services
+
 Server
 │
 ├── src
@@ -295,6 +284,7 @@ Server
 │   │   └── utils
 │   ├── app.js
 │   └── server.js
+```
 
 ---
 
@@ -346,10 +336,13 @@ Server
 
 Use Stripe test card details:
 
+```
 Card Number: 4242 4242 4242 4242
 Expiry: Any future date
 CVC: Any 3 digits
 ZIP: Any 5 digits
+```
+
 ---
 
 ## 👨‍💻 Developed By
