@@ -381,7 +381,7 @@ export default function Navbar() {
         <div className="hidden md:flex items-center gap-3 shrink-0">
           {user?.role === "reader" && (
             <Link
-              href="/become-writer"
+              href="/register"
               className="hidden lg:flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all hover:opacity-80 border"
               style={{ backgroundColor: "var(--card)", color: "var(--primary)", borderColor: "var(--border)" }}
             >
@@ -522,7 +522,7 @@ export default function Navbar() {
 
                   {user.role === "reader" && (
                     <Link
-                      href="/become-writer"
+                      href="/register"
                       className="flex items-center gap-3 py-2.5 text-sm font-bold"
                       style={{ color: "var(--primary)" }}
                     >
